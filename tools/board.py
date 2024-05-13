@@ -11,6 +11,7 @@ Action = Union[ActionGopher, ActionDodo]
 Player = int  # 1 ou 2
 R = 1
 B = 2
+EMPTY = 0
 Score = int
 Time = int
 Evaluation = float
@@ -103,5 +104,18 @@ def initialize_dodo(
             elif r > -q + (hex_size - 3):
                 res[Hex(q, r)] = B
             else:
-                res[Hex(q, r)] = 0
+                res[Hex(q, r)] = EMPTY
+    return Board(game, res, player, hex_size, total_time)
+
+
+def initialise_gopher(
+    game: str, state: State, player: Player, hex_size: int, total_time: Time
+) -> Environment:
+    res: State = {}
+    n = hex_size - 1
+    for r in range(n, -n - 1, -1):
+        q1 = max(-n, r - n)
+        q2 = min(n, r + n)
+        for q in range(q1, q2 + 1):
+            res[Hex(q, r)] = EMPTY
     return Board(game, res, player, hex_size, total_time)
