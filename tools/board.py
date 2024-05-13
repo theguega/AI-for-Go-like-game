@@ -90,7 +90,7 @@ class Board:
 Environment = Board
 
 
-def initialize_dodo(
+def initialize(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
 ) -> Environment:
     res: State = {}
@@ -98,24 +98,18 @@ def initialize_dodo(
     for r in range(n, -n - 1, -1):
         q1 = max(-n, r - n)
         q2 = min(n, r + n)
-        for q in range(q1, q2 + 1):
-            if -q > r + (hex_size - 3):
-                res[Hex(q, r)] = R
-            elif r > -q + (hex_size - 3):
-                res[Hex(q, r)] = B
-            else:
+        if game == "Dodo":
+            for q in range(q1, q2 + 1):
+                if -q > r + (hex_size - 3):
+                    res[Hex(q, r)] = R
+                elif r > -q + (hex_size - 3):
+                    res[Hex(q, r)] = B
+                else:
+                    res[Hex(q, r)] = EMPTY
+        elif game == "Gopher":
+            for q in range(q1, q2 + 1):
                 res[Hex(q, r)] = EMPTY
-    return Board(game, res, player, hex_size, total_time)
+        else:
+            raise ValueError("Unknown game")
 
-
-def initialise_gopher(
-    game: str, state: State, player: Player, hex_size: int, total_time: Time
-) -> Environment:
-    res: State = {}
-    n = hex_size - 1
-    for r in range(n, -n - 1, -1):
-        q1 = max(-n, r - n)
-        q2 = min(n, r + n)
-        for q in range(q1, q2 + 1):
-            res[Hex(q, r)] = EMPTY
     return Board(game, res, player, hex_size, total_time)
