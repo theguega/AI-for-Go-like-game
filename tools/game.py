@@ -45,7 +45,8 @@ def hex_to_tuple(h: Cell) -> tuple[int, int]:
 
 
 
-# -------- Plateau de jeu --------
+
+# -------- Environnement --------
 
 class Game:
     def __init__(
@@ -101,12 +102,12 @@ class Game:
                 va="center",
                 color=text_color
             )
-
-        plt.xlim(-3 * self.hex_size, 3 * self.hex_size)
-        plt.ylim(-3 * self.hex_size, 3 * self.hex_size)
+        size = 1.9*self.hex_size
+        plt.xlim(-size, size)
+        plt.ylim(-size, size)
         plt.show()
 
-Environment = Game 
+Environment = Game
 
 
 
