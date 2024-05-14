@@ -40,50 +40,36 @@ class Board:
 
     def plot(self):
         plt.figure(figsize=(10, 10))
-        layout = Layout(layout_flat, Point(1, -1), Point(0, 0))
+        layout = Layout(layout_ia02, Point(1, -1), Point(0, 0))
 
-        for box, color in self.state.items():
-            corners = polygon_corners(layout, box)
-            center = hex_to_pixel(layout, box)
+        for hexagon, player in self.state.items():
+            corners = polygon_corners(layout, hexagon)
+            center = hex_to_pixel(layout, hexagon)
 
-            # Contours de chaque hexagone
-            list_edges_x = [corner.x for corner in corners]
-            list_edges_y = [corner.y for corner in corners]
-            list_edges_x.append(list_edges_x[0])
-            list_edges_y.append(list_edges_y[0])
-            if color == 1:
-                polygon = Polygon(
-                    corners,
-                    closed=True,
-                    facecolor="red",
-                    edgecolor="black",
-                    linewidth=2,
-                )
-            elif color == 2:
-                polygon = Polygon(
-                    corners,
-                    closed=True,
-                    facecolor="blue",
-                    edgecolor="black",
-                    linewidth=2,
-                )
+            if player == R:
+                color = "red"
+                text_color = "white"
+            elif player == B:
+                color = "blue"
+                text_color = "white"
             else:
-                polygon = Polygon(
-                    corners,
-                    closed=True,
-                    facecolor="none",
-                    edgecolor="k",
-                    linewidth=2,
-                )
+                color = "white"
+                text_color = "black"
+
+            polygon = Polygon(corners, edgecolor="black", facecolor=color, linewidth=2)
+
             plt.gca().add_patch(polygon)
             plt.text(
                 center.x,
                 center.y,
-                f"{box.q}, {box.r}",
-                horizontalalignment="center",
+                f"{hexagon.q}, {hexagon.r}",
+                ha="center",
+                va="center",
+                color=text_color,
             )
-        plt.xlim(-2 * self.hex_size - 1, 2 * self.hex_size + 1)
-        plt.ylim(-2 * self.hex_size - 1, 2 * self.hex_size + 1)
+
+        plt.xlim(-2 * self.hex_size, 2 * self.hex_size)
+        plt.ylim(-2 * self.hex_size, 2 * self.hex_size)
         plt.show()
 
 

@@ -1,63 +1,160 @@
+# Generated code -- CC0 -- No Rights Reserved -- http://www.redblobgames.com/grids/hexagons/
+
 from __future__ import division
 from __future__ import print_function
-from collections import namedtuple
+import collections
 import math
 
-Point = namedtuple("Point", ["x", "y"])
-Hex = namedtuple("Hex", ["q", "r"])
+Point = collections.namedtuple("Point", ["x", "y"])
+Hex = collections.namedtuple("Hex", ["q", "r"])
 
 
-def point_to_str(p: Point) -> str:
-    return f"({p.x}, {p.y})"
+def hex_add(a, b):
+    return Hex(a.q + b.q, a.r + b.r)
 
 
-def hex_add(h1: Hex, h2: Hex) -> Hex:
-    return Hex(h1.q + h2.q, h1.r + h2.r)
+def hex_subtract(a, b):
+    return Hex(a.q - b.q, a.r - b.r)
 
 
-def hex_sub(h1: Hex, h2: Hex) -> Hex:
-    return Hex(h1.q - h2.q, h1.r - h2.r)
+def hex_scale(a, k):
+    return Hex(a.q * k, a.r * k)
 
 
-def scale(h: Hex, k) -> Hex:
-    return Hex(h.q * k, h.r * k)
+def hex_rotate_left(a):
+    return Hex(-a.q, -a.r)
 
 
-def rotate_left(h: Hex) -> Hex:
-    return Hex(-h.q, -h.r)
+def hex_rotate_right(a):
+    return Hex(-a.r, -a.q)
 
 
-def rotate_right(h: Hex) -> Hex:
-    return Hex(-h.r, -h.q)
+hex_directions = [Hex(-1, 0), Hex(0, 1), Hex(1, 1), Hex(1, 0), Hex(0, -1), Hex(-1, -1)]
 
 
-hex_directions = [
-    Hex(-1, 0),
-    Hex(0, 1),
-    Hex(1, 1),
-    Hex(1, 0),
-    Hex(0, -1),
-    Hex(-1, -1),
-]
-
-
-def hex_direction(direction) -> Hex:
+def hex_direction(direction):
     return hex_directions[direction]
 
 
-def neighbor(h: Hex, direction: int):
-    return hex_add(h, hex_direction(direction))
+def hex_neighbor(hex, direction):
+    return hex_add(hex, hex_direction(direction))
 
 
-def hex_to_str(h: Hex) -> str:
-    return f"(q: {h.q}, r: {h.r})"
+def hex_length(hex):
+    return (abs(hex.q) + abs(hex.r)) // 2
 
 
-Orientation = namedtuple(
+def hex_distance(a, b):
+    return hex_length(hex_subtract(a, b))
+
+
+def hex_round(h):
+    qi = int(round(h.q))
+    ri = int(round(h.r))
+    si = int(round(h.s))
+    q_diff = abs(qi - h.q)
+    r_diff = abs(ri - h.r)
+    s_diff = abs(si - h.s)
+    if q_diff > r_diff and q_diff > s_diff:
+        qi = -ri - si
+    else:
+        if r_diff > s_diff:
+            ri = -qi - si
+        else:
+            si = -qi - ri
+    return Hex(qi, ri, si)
+
+
+def hex_lerp(a, b, t):
+    return Hex(
+        a.q * (1.0 - t) + b.q * t, a.r * (1.0 - t) + b.r * t, a.s * (1.0 - t) + b.s * t
+    )
+
+
+def hex_linedraw(a, b):
+    N = hex_distance(a, b)
+    a_nudge = Hex(a.q + 1e-06, a.r + 1e-06, a.s - 2e-06)
+    b_nudge = Hex(b.q + 1e-06, b.r + 1e-06, b.s - 2e-06)
+    results = []
+    step = 1.0 / max(N, 1)
+    for i in range(0, N + 1):
+        results.append(hex_round(hex_lerp(a_nudge, b_nudge, step * i)))
+    return results
+
+
+OffsetCoord = collections.namedtuple("OffsetCoord", ["col", "row"])
+
+EVEN = 1
+ODD = -1
+
+
+def qoffset_from_cube(offset, h):
+    col = h.q
+    row = h.r + (h.q + offset * (h.q & 1)) // 2
+    if offset != EVEN and offset != ODD:
+        raise ValueError("offset must be EVEN (+1) or ODD (-1)")
+    return OffsetCoord(col, row)
+
+
+def qoffset_to_cube(offset, h):
+    q = h.col
+    r = h.row - (h.col + offset * (h.col & 1)) // 2
+    s = -q - r
+    if offset != EVEN and offset != ODD:
+        raise ValueError("offset must be EVEN (+1) or ODD (-1)")
+    return Hex(q, r, s)
+
+
+def roffset_from_cube(offset, h):
+    col = h.q + (h.r + offset * (h.r & 1)) // 2
+    row = h.r
+    if offset != EVEN and offset != ODD:
+        raise ValueError("offset must be EVEN (+1) or ODD (-1)")
+    return OffsetCoord(col, row)
+
+
+def roffset_to_cube(offset, h):
+    q = h.col - (h.row + offset * (h.row & 1)) // 2
+    r = h.row
+    s = -q - r
+    if offset != EVEN and offset != ODD:
+        raise ValueError("offset must be EVEN (+1) or ODD (-1)")
+    return Hex(q, r, s)
+
+
+DoubledCoord = collections.namedtuple("DoubledCoord", ["col", "row"])
+
+
+def qdoubled_from_cube(h):
+    col = h.q
+    row = 2 * h.r + h.q
+    return DoubledCoord(col, row)
+
+
+def qdoubled_to_cube(h):
+    q = h.col
+    r = (h.row - h.col) // 2
+    s = -q - r
+    return Hex(q, r, s)
+
+
+def rdoubled_from_cube(h):
+    col = 2 * h.q + h.r
+    row = h.r
+    return DoubledCoord(col, row)
+
+
+def rdoubled_to_cube(h):
+    q = (h.col - h.row) // 2
+    r = h.row
+    s = -q - r
+    return Hex(q, r, s)
+
+
+Orientation = collections.namedtuple(
     "Orientation", ["f0", "f1", "f2", "f3", "b0", "b1", "b2", "b3", "start_angle"]
 )
-Layout = namedtuple("Layout", ["orientation", "size", "origin"])
-
+Layout = collections.namedtuple("Layout", ["orientation", "size", "origin"])
 
 layout_pointy = Orientation(
     math.sqrt(3.0),
@@ -70,12 +167,22 @@ layout_pointy = Orientation(
     2.0 / 3.0,
     0.5,
 )
-
 layout_flat = Orientation(
     3.0 / 2.0,
+    0.0,
+    math.sqrt(3.0) / 2.0,
+    math.sqrt(3.0),
+    2.0 / 3.0,
+    0.0,
+    -1.0 / 3.0,
+    math.sqrt(3.0) / 3.0,
+    0.0,
+)
+layout_ia02 = Orientation(
+    3.0 / 2.0,
     -3.0 / 2.0,
-    -math.sqrt(3.0) / 2.0,
-    -math.sqrt(3.0) / 2.0,
+    -math.sqrt(3.0) / 2,
+    -math.sqrt(3.0) / 2,
     2.0 / 3.0,
     0.0,
     -1.0 / 3.0,
@@ -84,34 +191,34 @@ layout_flat = Orientation(
 )
 
 
-def hex_to_pixel(layout: Layout, h: Hex) -> Point:
-    m = layout.orientation
+def hex_to_pixel(layout, h):
+    M = layout.orientation
     size = layout.size
     origin = layout.origin
-    x = (m.f0 * h.q + m.f1 * h.r) * size.x
-    y = (m.f2 * h.q + m.f3 * h.r) * size.y
+    x = (M.f0 * h.q + M.f1 * h.r) * size.x
+    y = (M.f2 * h.q + M.f3 * h.r) * size.y
     return Point(x + origin.x, y + origin.y)
 
 
-def pixel_to_hex(layout: Layout, p: Point) -> Hex:
-    m = layout.orientation
+def pixel_to_hex(layout, p):
+    M = layout.orientation
     size = layout.size
     origin = layout.origin
     pt = Point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y)
-    q = m.b0 * pt.x + m.b1 * pt.y
-    r = m.b2 * pt.x + m.b3 * pt.y
-    return Hex(q, r)
+    q = M.b0 * pt.x + M.b1 * pt.y
+    r = M.b2 * pt.x + M.b3 * pt.y
+    return Hex(q, r, -q - r)
 
 
-def hex_corner_offset(layout: Layout, corner: int) -> Point:
-    m = layout.orientation
+def hex_corner_offset(layout, corner):
+    M = layout.orientation
     size = layout.size
-    angle = 2.0 * math.pi * (m.start_angle - corner) / 6.0
+    angle = 2.0 * math.pi * (M.start_angle - corner) / 6.0
     return Point(size.x * math.cos(angle), size.y * math.sin(angle))
 
 
-def polygon_corners(layout: Layout, h: Hex) -> list[Point]:
-    corners: list[Point] = []
+def polygon_corners(layout, h):
+    corners = []
     center = hex_to_pixel(layout, h)
     for i in range(0, 6):
         offset = hex_corner_offset(layout, i)
