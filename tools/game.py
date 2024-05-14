@@ -3,7 +3,6 @@ from tools.hexagons import *
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 
-#Cell = tuple[int, int]
 Cell = Hex
 ActionGopher = Cell
 ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
@@ -14,29 +13,32 @@ B = 2
 EMPTY = 0
 Score = int
 Time = int
-#State = list[tuple[Cell,Player]]
 State = dict[Cell, Player]
 
 # -------- Conversion pour adéquation à nos types de données --------
+def list_to_dict(state: list[tuple[Cell, Player]]) -> State:
+    """
+    Convertit une liste de tuples en dictionnaire
+    """
+    return {cell: player for cell, player in state}
 
-def list_to_dict(state: list[tuple[Cell,Player]]) -> State:
-    res: State = {}
-    for cell, player in state:
-        res[cell] = player
-    return res
+def dict_to_list(state: State) -> list[tuple[Cell, Player]]:
+    """
+    Convertit un dictionnaire en liste de tuples
+    """
+    return [(cell, player) for cell, player in state.items()]
 
-def dict_to_list(state: State) -> list[tuple[Cell,Player]]:
-    res: list[tuple[Cell,Player]] = []
-    for cell, player in state.items():
-        res.append((cell, player))
-    return res
+def tuple_to_hex(t: tuple[int, int]) -> Cell:
+    """
+    Convertit un tuple en Hex
+    """
+    return axial_to_cube(DoubledCoord(t[0], t[1]))
 
-def hex_to_tuple(cell: Cell) -> tuple[int,int]:
-    return (cell.q, cell.r)
-
-def tuple_to_hex(cell: tuple[int,int]) -> Cell:
-    return Hex(cell[0], cell[1])
-
+def hex_to_tuple(h: Cell) -> tuple[int, int]:
+    """
+    Convertit un Hex en tuple
+    """
+    return (h.q, h.r)
 
 
 
@@ -49,7 +51,18 @@ class Game:
     def __init__(
         self, game: str, state: State, player: Player, hex_size: int, total_time: Time
     ):
+        """
+        Constructeur de la classe Game
+        """
         # add test before creation
+        if game not in ["Gopher", "Dodo"]:
+            raise ValueError("game must be 'Gopher' or 'Dodo'")
+        if player not in [R, B]:
+            raise ValueError("player must be 1 or 2")
+        if hex_size < 1:
+            raise ValueError("hex_size must be >= 1")
+        #if not valid(state) : error
+        
         self.game: str = game
         self.state: State = state
         self.player: Player = player
@@ -57,6 +70,9 @@ class Game:
         self.total_time: Time = total_time
 
     def plot(self):
+        """
+        Affiche le plateau de jeu actuel
+        """
         plt.figure(figsize=(10, 10))
         layout = Layout(layout_ia02, Point(1, -1), Point(0, 0))
 
@@ -86,11 +102,11 @@ class Game:
                 color=text_color
             )
 
-        plt.xlim(-2 * self.hex_size, 2 * self.hex_size)
-        plt.ylim(-2 * self.hex_size, 2 * self.hex_size)
+        plt.xlim(-3 * self.hex_size, 3 * self.hex_size)
+        plt.ylim(-3 * self.hex_size, 3 * self.hex_size)
         plt.show()
 
-Environment = Game
+Environment = Game 
 
 
 
@@ -103,22 +119,20 @@ Environment = Game
 def initialize(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
 ) -> Environment:
-    #empty board
+    """
+    Initialise un plateau de jeu à l'état initial en fonction du type de jeu
+    """
     res: State = {}
-    n = hex_size
-    for r in range(n, -n-1, -1):
-        qmin = max(-n, r-n)
-        qmax = min(n, r+n)
+    h = hex_size
+    for r in range(h, -h-1, -1):
+        qmin = max(-h, r-h)
+        qmax = min(h, r+h)
         for q in range(qmin, qmax+1):
-            res[Hex(q, r)] = EMPTY
+            res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
             if game == "Dodo":
                 if -q > r + (hex_size - 3):
-                    res[Hex(q, r)] = R
+                    res[axial_to_cube(DoubledCoord(q, r))] = R
                 elif r > -q + (hex_size - 3):
-                    res[Hex(q, r)] = B
-                else:
-                    res[Hex(q, r)] = EMPTY
-        if game != "Gopher" and game != "Dodo":
-            raise ValueError("game must be 'Dodo' or 'Gopher'")
+                    res[axial_to_cube(DoubledCoord(q, r))] = B
 
-    return Game(game, res, player, n, total_time)
+    return Game(game, res, player, h, total_time)
