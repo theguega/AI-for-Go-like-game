@@ -1,9 +1,9 @@
-from typing import Union, Callable
+from typing import Union
 from tools.hexagons import *
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
-import random
 
+#Cell = tuple[int, int]
 Cell = Hex
 ActionGopher = Cell
 ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
@@ -14,11 +14,38 @@ B = 2
 EMPTY = 0
 Score = int
 Time = int
-Evaluation = float
+#State = list[tuple[Cell,Player]]
 State = dict[Cell, Player]
 
+# -------- Conversion pour adéquation à nos types de données --------
 
-class Board:
+def list_to_dict(state: list[tuple[Cell,Player]]) -> State:
+    res: State = {}
+    for cell, player in state:
+        res[cell] = player
+    return res
+
+def dict_to_list(state: State) -> list[tuple[Cell,Player]]:
+    res: list[tuple[Cell,Player]] = []
+    for cell, player in state.items():
+        res.append((cell, player))
+    return res
+
+def hex_to_tuple(cell: Cell) -> tuple[int,int]:
+    return (cell.q, cell.r)
+
+def tuple_to_hex(cell: tuple[int,int]) -> Cell:
+    return Hex(cell[0], cell[1])
+
+
+
+
+
+
+
+# -------- Plateau de jeu --------
+
+class Game:
     def __init__(
         self, game: str, state: State, player: Player, hex_size: int, total_time: Time
     ):
@@ -28,15 +55,6 @@ class Board:
         self.player: Player = player
         self.hex_size: int = hex_size
         self.total_time: Time = total_time
-
-    def final(self, player: Player) -> bool:
-        return len(self.legals(player)) == 0
-
-    def play(self, player: Player, action: Action):
-        new_state = self.state.copy()
-        new_state[action[0]] = 0
-        new_state[action[1]] = player
-        return Board(self.game, new_state, 3 - player, self.hex_size, self.total_time)
 
     def plot(self):
         plt.figure(figsize=(10, 10))
@@ -65,37 +83,42 @@ class Board:
                 f"{hexagon.q}, {hexagon.r}",
                 ha="center",
                 va="center",
-                color=text_color,
+                color=text_color
             )
 
         plt.xlim(-2 * self.hex_size, 2 * self.hex_size)
         plt.ylim(-2 * self.hex_size, 2 * self.hex_size)
         plt.show()
 
+Environment = Game
 
-Environment = Board
 
+
+
+
+
+
+# -------- Initlisation des plateaux de jeu --------
 
 def initialize(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
 ) -> Environment:
+    #empty board
     res: State = {}
-    n = hex_size - 1
-    for r in range(n, -n - 1, -1):
-        q1 = max(-n, r - n)
-        q2 = min(n, r + n)
-        if game == "Dodo":
-            for q in range(q1, q2 + 1):
+    n = hex_size
+    for r in range(n, -n-1, -1):
+        qmin = max(-n, r-n)
+        qmax = min(n, r+n)
+        for q in range(qmin, qmax+1):
+            res[Hex(q, r)] = EMPTY
+            if game == "Dodo":
                 if -q > r + (hex_size - 3):
                     res[Hex(q, r)] = R
                 elif r > -q + (hex_size - 3):
                     res[Hex(q, r)] = B
                 else:
                     res[Hex(q, r)] = EMPTY
-        elif game == "Gopher":
-            for q in range(q1, q2 + 1):
-                res[Hex(q, r)] = EMPTY
-        else:
-            raise ValueError("Unknown game")
+        if game != "Gopher" and game != "Dodo":
+            raise ValueError("game must be 'Dodo' or 'Gopher'")
 
-    return Board(game, res, player, hex_size, total_time)
+    return Game(game, res, player, n, total_time)
