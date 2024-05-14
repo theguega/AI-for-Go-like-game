@@ -36,6 +36,7 @@ def hex_neighbor(hex, direction):
     return hex_add(hex, hex_direction(direction))
 
 hex_diagonals = [Hex(2, -1, -1), Hex(1, -2, 1), Hex(-1, -1, 2), Hex(-2, 1, 1), Hex(-1, 2, -1), Hex(1, 1, -2)]
+
 def hex_diagonal_neighbor(hex, direction):
     return hex_add(hex, hex_diagonals[direction])
 
