@@ -1,17 +1,21 @@
-import tools.game as game
-
-
-def main():
-    # plot gopher and dodo on 2 different figures
-    size_0 = 6
-    empty_goph = game.new_gopher(size_0)
-    goph = game.initialize("Gopher", empty_goph, game.R, size_0, 1000)
-    #goph.plot()
-
-    size_1 = 6
-    empty_dodo = game.new_dodo(size_1)
-    dodo = game.initialize("Dodo", empty_dodo, game.B, size_1, 1000)
-    dodo.plot()
+import tools.game as gopher_dodo
 
 if __name__ == "__main__":
-    main()
+    name = "Gopher"
+    size = 10
+
+    if name == "Dodo":
+        initial_state = gopher_dodo.new_dodo(size)
+    elif name == "Gopher":
+        initial_state = gopher_dodo.new_gopher(size)
+
+    env = gopher_dodo.initialize(name, initial_state, gopher_dodo.B, size, 50)
+
+    while not env.final():
+        if env.player == gopher_dodo.R:
+            action = env.strategy_random()
+        else:
+            action = env.strategy_random()
+        env = env.play(action)
+    #env.plot()
+    print(env.score())
