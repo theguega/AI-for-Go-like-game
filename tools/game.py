@@ -15,7 +15,7 @@ Score = int
 Time = int
 State = dict[Cell, Player]
 
-# -------- Conversion pour adéquation à nos types de données --------
+# -------- Conversion pour adéquation entre nos données et l'API --------
 def list_to_dict(state: list[tuple[Cell, Player]]) -> State:
     """
     Convertit une liste de tuples en dictionnaire
@@ -117,23 +117,32 @@ Environment = Game
 
 # -------- Initlisation des plateaux de jeu --------
 
-def initialize(
-    game: str, state: State, player: Player, hex_size: int, total_time: Time
-) -> Environment:
-    """
-    Initialise un plateau de jeu à l'état initial en fonction du type de jeu
-    """
+def new_dodo(h : int) -> State:
     res: State = {}
-    h = hex_size
     for r in range(h, -h-1, -1):
         qmin = max(-h, r-h)
         qmax = min(h, r+h)
         for q in range(qmin, qmax+1):
             res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
-            if game == "Dodo":
-                if -q > r + (hex_size - 3):
-                    res[axial_to_cube(DoubledCoord(q, r))] = R
-                elif r > -q + (hex_size - 3):
-                    res[axial_to_cube(DoubledCoord(q, r))] = B
+            if -q > r + (h - 2):
+                res[axial_to_cube(DoubledCoord(q, r))] = R
+            elif r > -q + (h - 2):
+                res[axial_to_cube(DoubledCoord(q, r))] = B
+    return res
 
-    return Game(game, res, player, h, total_time)
+def new_gopher(h : int) -> State:
+    res: State = {}
+    for r in range(h, -h-1, -1):
+        qmin = max(-h, r-h)
+        qmax = min(h, r+h)
+        for q in range(qmin, qmax+1):
+            res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
+    return res
+
+def initialize(
+    game: str, state: State, player: Player, hex_size: int, total_time: Time
+) -> Environment:
+    """
+    Initialise un environnement de jeu
+    """
+    return Game(game, state, player, hex_size, total_time)
