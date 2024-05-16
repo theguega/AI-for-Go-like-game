@@ -3,7 +3,6 @@ import tools.game as gopher_dodo
 if __name__ == "__main__":
     name = "Gopher"
     size = 10
-
     if name == "Dodo":
         initial_state = gopher_dodo.new_dodo(size)
     elif name == "Gopher":
@@ -16,6 +15,12 @@ if __name__ == "__main__":
             action = env.strategy_random()
         else:
             action = env.strategy_random()
+        #print("Action :", action)
         env = env.play(action)
-    #env.plot()
-    print(env.score())
+    
+    env.plot()
+
+    if env.score() == 1:
+        print("Blue wins")
+    elif env.score() == -1:
+        print("Red wins")
