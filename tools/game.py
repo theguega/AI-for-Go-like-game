@@ -154,6 +154,7 @@ class GameGopher(Game):
         dict = state_to_dict(self.state)
 
         # for every enemy paws, check all neighbors and for every neighbor, count number of friendly and enemy paws
+        # O(nb_paws_enemy^2)
         for hexagon, _ in self.red_pawns if self.player == B else self.blue_pawns:
             moves: State = ()
             for n in neighbor:
@@ -173,21 +174,6 @@ class GameGopher(Game):
                             enemy += 1
                     if enemy == 1 and friendly == 0:
                         res.add(move)
-
-        """
-        for hexagon, player in self.state:
-                if player == EMPTY:
-                    enemy: int = 0
-                    friendly: int = 0
-                    for n in neighbor:
-                        move = hex_add(hexagon, n)
-                        if move in dict and dict[move] == self.player:
-                            friendly += 1
-                        elif move in dict and dict[move] == 3 - self.player:
-                            enemy += 1
-                    if enemy == 1 and friendly == 0:
-                        res.append(hexagon)
-        """
         res = list(res)
         debug(res)
         return res
@@ -252,6 +238,7 @@ class GameDodo(Game):
 
         dict = state_to_dict(self.state)
 
+        # O(nb_paws)
         for hexagon, player in self.red_pawns if self.player == R else self.blue_pawns:
             if player == self.player:
                 for possible_move in forward_blue if player == B else forward_red:
