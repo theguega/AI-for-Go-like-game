@@ -37,7 +37,15 @@ def dict_to_state(d: dict[Hex, Player]) -> State:
 
 
 class Game:
-    def __init__(self, state: State, player: Player, hex_size: int, total_time: Time, red_pawns: State = (), blue_pawns: State = ()):
+    def __init__(
+        self,
+        state: State,
+        player: Player,
+        hex_size: int,
+        total_time: Time,
+        red_pawns: State = (),
+        blue_pawns: State = (),
+    ):
         if player not in [R, B]:
             raise ValueError("player must be 1 or 2")
         if hex_size < 1:
@@ -100,7 +108,14 @@ Environment = Game
 
 class GameGopher(Game):
     def __init__(
-        self, game: str, state: State, player: Player, hex_size: int, total_time: Time, red_pawns: State = (), blue_pawns: State = ()
+        self,
+        game: str,
+        state: State,
+        player: Player,
+        hex_size: int,
+        total_time: Time,
+        red_pawns: State = (),
+        blue_pawns: State = (),
     ):
         super().__init__(state, player, hex_size, total_time, red_pawns, blue_pawns)
         self.game = game
@@ -119,26 +134,26 @@ class GameGopher(Game):
         """
         res: set[ActionGopher] = set()
 
-        #first move can be anywhere
+        # first move can be anywhere
         if self.initial_state:
             for hexagon, _ in self.state:
                 res.add(hexagon)
-            res=list(res)
+            res = list(res)
             debug(res)
             return res
-        
+
         neighbor = [
             axial_to_cube(DoubledCoord(-1, 0)),
             axial_to_cube(DoubledCoord(-1, -1)),
             axial_to_cube(DoubledCoord(0, -1)),
             axial_to_cube(DoubledCoord(0, 1)),
             axial_to_cube(DoubledCoord(1, 1)),
-            axial_to_cube(DoubledCoord(1, 0))
+            axial_to_cube(DoubledCoord(1, 0)),
         ]
 
         dict = state_to_dict(self.state)
 
-        #for every enemy paws, check all neighbors and for every neighbor, count number of friendly and enemy paws
+        # for every enemy paws, check all neighbors and for every neighbor, count number of friendly and enemy paws
         for hexagon, _ in self.red_pawns if self.player == B else self.blue_pawns:
             moves: State = ()
             for n in neighbor:
@@ -173,16 +188,16 @@ class GameGopher(Game):
                     if enemy == 1 and friendly == 0:
                         res.append(hexagon)
         """
-        res=list(res)
+        res = list(res)
         debug(res)
         return res
-    
+
     def play(self, action: ActionGopher) -> Environment:
-        #update party state
+        # update party state
         state = state_to_dict(self.state)
         state[action] = self.player
 
-        #update pawns
+        # update pawns
         if self.player == R:
             red_pawns = state_to_dict(self.red_pawns)
             red_pawns[action] = self.player
@@ -205,7 +220,14 @@ class GameGopher(Game):
 
 class GameDodo(Game):
     def __init__(
-        self, game: str, state: State, player: Player, hex_size: int, total_time: Time, red_pawns: State = (), blue_pawns: State = ()
+        self,
+        game: str,
+        state: State,
+        player: Player,
+        hex_size: int,
+        total_time: Time,
+        red_pawns: State = (),
+        blue_pawns: State = (),
     ):
         super().__init__(state, player, hex_size, total_time, red_pawns, blue_pawns)
         self.game = game
@@ -220,12 +242,12 @@ class GameDodo(Game):
         forward_blue = [
             axial_to_cube(DoubledCoord(-1, 0)),
             axial_to_cube(DoubledCoord(-1, -1)),
-            axial_to_cube(DoubledCoord(0, -1))
+            axial_to_cube(DoubledCoord(0, -1)),
         ]
         forward_red = [
             axial_to_cube(DoubledCoord(0, 1)),
             axial_to_cube(DoubledCoord(1, 1)),
-            axial_to_cube(DoubledCoord(1, 0))
+            axial_to_cube(DoubledCoord(1, 0)),
         ]
 
         dict = state_to_dict(self.state)
@@ -236,18 +258,18 @@ class GameDodo(Game):
                     move = hex_add(hexagon, possible_move)
                     if move in dict and dict[move] == EMPTY:
                         res.append((hexagon, move))
-        
+
         debug(res)
         return list(res)
 
     def play(self, action: ActionDodo) -> Environment:
-        #update party state
+        # update party state
         state = state_to_dict(self.state)
         state[action[0]] = EMPTY
         state[action[1]] = self.player
         self.state = dict_to_state(state)
 
-        #update pawns
+        # update pawns
         if self.player == R:
             red_pawns = state_to_dict(self.red_pawns)
             red_pawns[action[0]] = EMPTY
@@ -266,7 +288,7 @@ class GameDodo(Game):
             self.hex_size,
             self.total_time,
             red_pawns=self.red_pawns,
-            blue_pawns=self.blue_pawns
+            blue_pawns=self.blue_pawns,
         )
 
 
@@ -308,22 +330,23 @@ def initialize(
         if env.empty():
             env.initial_state = True
     elif game == "Dodo":
-        #init pawns of each player
-        red_pawns : State = ()
-        blue_pawns : State = ()
+        # init pawns of each player
+        red_pawns: State = ()
+        blue_pawns: State = ()
         for hexagon, player in state:
             if player == R:
                 red_pawns += (Case(hexagon, player),)
             elif player == B:
                 blue_pawns += (Case(hexagon, player),)
-        #create environment
+        # create environment
         env = GameDodo(game, state, player, hex_size, total_time, red_pawns, blue_pawns)
     else:
         raise ValueError("game must be 'Gopher' or 'Dodo'")
     return env
 
-def debug(res:list[Action]):
+
+def debug(res: list[Action]):
     pass
-    #print("--------------------")
-    #for actions in res:
+    # print("--------------------")
+    # for actions in res:
     #    print(actions)

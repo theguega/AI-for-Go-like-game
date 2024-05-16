@@ -15,9 +15,9 @@ if __name__ == "__main__":
             action = env.strategy_random()
         else:
             action = env.strategy_random()
-        #print("Action :", action)
+        # print("Action :", action)
         env = env.play(action)
-    
+
     env.plot()
 
     if env.score() == 1:
