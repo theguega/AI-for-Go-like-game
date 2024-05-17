@@ -206,6 +206,40 @@ class GameGopher(Game):
             red_pawns=self.red_pawns,
             blue_pawns=self.blue_pawns,
         )
+    
+    def alpha_beta_action(self, depth: int, alpha: int, beta: int, player: Player) -> tuple[float, ActionGopher]:
+        if depth == 0 or self.final():
+            return self.score(), None
+
+        if player == R:
+            max_eval = -float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, B)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_action = action
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break # beta cut-off
+            return max_eval, best_action
+        else:
+            min_eval = float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, R)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_action = action
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break # alpha cut-off
+            return min_eval, best_action
+        
+    def strategy_alpha_beta(self) -> ActionGopher:
+        return self.alpha_beta_action(5, -float("inf"), float("inf"), self.player)[1]
 
 
 class GameDodo(Game):
