@@ -1,7 +1,7 @@
 import tools.game as gopher_dodo
 
 if __name__ == "__main__":
-    name = "Gopher"
+    name = "Dodo"
     size = 10
     if name == "Dodo":
         initial_state = gopher_dodo.new_dodo(size)

@@ -249,7 +249,7 @@ class GameDodo(Game):
                 for possible_move in forward_blue if player == B else forward_red:
                     move = hex_add(hexagon, possible_move)
                     if move in dict and dict[move] == EMPTY:
-                        res.append((hexagon, move))
+                        res.add((hexagon, move))
 
         debug(res)
         return list(res)
