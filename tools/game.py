@@ -18,7 +18,7 @@ Case = collections.namedtuple("Case", ["Hex", "Player"])
 State = tuple[Case, ...]
 
 
-# -------- Coversion pour passage mutable - non-mutable --------
+# -------- Conversion pour passage mutable - non-mutable --------
 def state_to_dict(state: State) -> dict[Hex, Player]:
     res = {}
     for case in state:
@@ -96,8 +96,6 @@ class Game:
     def final(self) -> bool:
         return not self.legals()
 
-    def score(self) -> Score:
-        return 1 if self.player == R else -1
 
     def strategy_random(self) -> ActionDodo:
         return random.choice(self.legals())
@@ -127,6 +125,9 @@ class GameGopher(Game):
             if player != EMPTY:
                 bool = False
         return bool
+
+    def score(self) -> Score:
+        return 1 if self.player == R else -1
 
     def legals(self) -> list[ActionGopher]:
         """
@@ -276,18 +277,23 @@ class GameDodo(Game):
 
         dict = state_to_dict(self.state)
 
-        # O(nb_paws*6) = O(nb_paws)
+        # O(nb_paws*3) = O(nb_paws)
         for hexagon, player in self.red_pawns if self.player == R else self.blue_pawns:
             if player == self.player:
-                #O(6) = O(1)
+                #O(3) = O(1)
                 for possible_move in forward_blue if player == B else forward_red:
                     move = hex_add(hexagon, possible_move)
                     if move in dict and dict[move] == EMPTY:
-                        res.append((hexagon, move))
+                        res.add((hexagon, move))
 
         debug(res)
         return list(res)
 
+    def final(self) -> bool:
+        return not self.legals()
+
+    def score(self) -> Score:
+        return 1 if self.player == B else -1
     def play(self, action: ActionDodo) -> Environment:
         # update party state
         state = state_to_dict(self.state)
@@ -317,8 +323,42 @@ class GameDodo(Game):
             blue_pawns=self.blue_pawns,
         )
 
+    def alpha_beta_action(self, depth: int, alpha: int, beta: int, player: Player) -> tuple[float, ActionDodo]:
+        if depth == 0 or self.final():
+            return self.score(), None
 
-# -------- Initlisation des plateaux de jeu --------
+        if player == R:
+            max_eval = -float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, B)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_action = action
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break  # beta cut-off
+            return max_eval, best_action
+        else:
+            min_eval = float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, R)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_action = action
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break  # alpha cut-off
+            return min_eval, best_action
+
+    def strategy_alpha_beta(self) -> ActionDodo:
+        return self.alpha_beta_action(5, -float("inf"), float("inf"), self.player)[1]
+
+
+# -------- Initialisation des plateaux de jeu --------
 
 
 def new_dodo(h: int) -> State:
