@@ -18,7 +18,7 @@ Case = collections.namedtuple("Case", ["Hex", "Player"])
 State = tuple[Case, ...]
 
 
-# -------- Coversion pour passage mutable - non-mutable --------
+# -------- Conversion pour passage mutable - non-mutable --------
 def state_to_dict(state: State) -> dict[Hex, Player]:
     res = {}
     for case in state:
@@ -125,6 +125,9 @@ class GameGopher(Game):
                 bool = False
         return bool
 
+    def score(self) -> Score:
+        return 1 if self.player == R else -1
+
     def legals(self) -> list[ActionGopher]:
         """
         Red begins the game by placing a stone anywhere on the board. Then, starting with Blue, players take turns placing a stone which forms exactly one enemy connection and no friendly connections
@@ -194,10 +197,49 @@ class GameGopher(Game):
             blue_pawns[action] = self.player
             self.blue_pawns = dict_to_state(blue_pawns)
 
-        self.player = 3 - self.player #changement de joueur
+        return GameGopher(
+            "Gopher",
+            dict_to_state(state),
+            3 - self.player,
+            self.hex_size,
+            self.total_time,
+            red_pawns=self.red_pawns,
+            blue_pawns=self.blue_pawns,
+        )
     
-    def score(self) -> Score:
-        return 1 if self.player == R else -1
+    def alpha_beta_action(self, depth: int, alpha: int, beta: int, player: Player) -> tuple[float, ActionGopher]:
+        if depth == 0 or self.final():
+            return self.score(), None
+
+        if player == R:
+            max_eval = -float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, B)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_action = action
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break # beta cut-off
+            return max_eval, best_action
+        else:
+            min_eval = float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, R)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_action = action
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break # alpha cut-off
+            return min_eval, best_action
+        
+    def strategy_alpha_beta(self) -> ActionGopher:
+        return self.alpha_beta_action(5, -float("inf"), float("inf"), self.player)[1]
 
 
 class GameDodo(Game):
@@ -234,7 +276,7 @@ class GameDodo(Game):
 
         dict = state_to_dict(self.state)
 
-        # O(nb_paws*6) = O(nb_paws)
+        # O(nb_paws*3) = O(nb_paws)
         for hexagon, player in self.red_pawns if self.player == R else self.blue_pawns:
             #O(6) = O(1)
             for possible_move in forward_blue if player == B else forward_red:
@@ -245,7 +287,12 @@ class GameDodo(Game):
         debug(res)
         return list(res)
 
-    def play(self, action: ActionDodo):
+    def final(self) -> bool:
+        return not self.legals()
+
+    def score(self) -> Score:
+        return 1 if self.player == B else -1
+    def play(self, action: ActionDodo) -> Environment:
         # update party state
         state = state_to_dict(self.state)
         state[action[0]] = EMPTY
@@ -269,8 +316,42 @@ class GameDodo(Game):
     def score(self) -> Score:
         return -1 if self.player == R else 1
 
+    def alpha_beta_action(self, depth: int, alpha: int, beta: int, player: Player) -> tuple[float, ActionDodo]:
+        if depth == 0 or self.final():
+            return self.score(), None
 
-# -------- Initlisation des plateaux de jeu --------
+        if player == R:
+            max_eval = -float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, B)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_action = action
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break  # beta cut-off
+            return max_eval, best_action
+        else:
+            min_eval = float("inf")
+            best_action = None
+            for action in self.legals():
+                new_env = self.play(action)
+                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, R)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_action = action
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break  # alpha cut-off
+            return min_eval, best_action
+
+    def strategy_alpha_beta(self) -> ActionDodo:
+        return self.alpha_beta_action(5, -float("inf"), float("inf"), self.player)[1]
+
+
+# -------- Initialisation des plateaux de jeu --------
 
 
 def new_dodo(h: int) -> State:
