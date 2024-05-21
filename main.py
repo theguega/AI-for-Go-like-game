@@ -1,9 +1,14 @@
 import tools.game as gopher_dodo
-import pprint
+import cProfile
+import pstats
 
 if __name__ == "__main__":
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    # ---- Boucle de jeu ----
     name = "Dodo"
-    size = 4
+    size = 5
     if name == "Dodo":
         initial_state = gopher_dodo.new_dodo(size)
     elif name == "Gopher":
@@ -28,3 +33,14 @@ if __name__ == "__main__":
         print("Blue wins")
     elif env.score() == -1:
         print("Red wins")
+    """
+
+
+    # ---- Affichage du profilage ----
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats('tottime')
+    stats.print_stats()
+
+    # ---- Affichage du plateau en fin de partie ----
+    #env.plot()

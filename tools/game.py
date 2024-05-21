@@ -96,7 +96,6 @@ class Game:
     def final(self) -> bool:
         return not self.legals()
 
-
     def strategy_random(self) -> ActionDodo:
         return random.choice(self.legals())
 
@@ -160,7 +159,7 @@ class GameGopher(Game):
             moves: State = ()
             # O(6) = O(1)
             for n in neighbor:
-                move = hex_add(hexagon, n)
+                move = Hex(hexagon.q + n.q, hexagon.r + n.r, hexagon.s + n.s)
                 if move in dict:
                     moves += (Case(move, dict[move]),)
 
@@ -171,7 +170,7 @@ class GameGopher(Game):
                     friendly: int = 0
                     # O(6) = O(1)
                     for n in neighbor:
-                        nei = hex_add(move, n)
+                        nei = Hex(move.q + n.q, move.r + n.r, move.s + n.s)
                         if nei in dict and dict[nei] == self.player:
                             friendly += 1
                         elif nei in dict and dict[nei] == 3 - self.player:
@@ -183,7 +182,7 @@ class GameGopher(Game):
         debug(res)
         return res
 
-    def play(self, action: ActionGopher) -> Environment:
+    def play(self, action: ActionGopher):
         # update party state
         state = state_to_dict(self.state)
         state[action] = self.player
@@ -279,12 +278,11 @@ class GameDodo(Game):
 
         # O(nb_paws*3) = O(nb_paws)
         for hexagon, player in self.red_pawns if self.player == R else self.blue_pawns:
-            if player == self.player:
-                #O(3) = O(1)
-                for possible_move in forward_blue if player == B else forward_red:
-                    move = hex_add(hexagon, possible_move)
-                    if move in dict and dict[move] == EMPTY:
-                        res.add((hexagon, move))
+            #O(6) = O(1)
+            for possible_move in forward_blue if player == B else forward_red:
+                move = Hex(hexagon.q + possible_move.q, hexagon.r + possible_move.r, hexagon.s + possible_move.s)
+                if move in dict and dict[move] == EMPTY:
+                    res.add((hexagon, move))
 
         debug(res)
         return list(res)
@@ -304,24 +302,19 @@ class GameDodo(Game):
         # update pawns
         if self.player == R:
             red_pawns = state_to_dict(self.red_pawns)
-            red_pawns[action[0]] = EMPTY
+            del red_pawns[action[0]]
             red_pawns[action[1]] = self.player
             self.red_pawns = dict_to_state(red_pawns)
         else:
             blue_pawns = state_to_dict(self.blue_pawns)
-            blue_pawns[action[0]] = EMPTY
+            del blue_pawns[action[0]]
             blue_pawns[action[1]] = self.player
             self.blue_pawns = dict_to_state(blue_pawns)
 
-        return GameDodo(
-            "Dodo",
-            self.state,
-            3 - self.player,
-            self.hex_size,
-            self.total_time,
-            red_pawns=self.red_pawns,
-            blue_pawns=self.blue_pawns,
-        )
+        self.player = 3 - self.player #changement de joueur
+    
+    def score(self) -> Score:
+        return -1 if self.player == R else 1
 
     def alpha_beta_action(self, depth: int, alpha: int, beta: int, player: Player) -> tuple[float, ActionDodo]:
         if depth == 0 or self.final():
@@ -362,6 +355,7 @@ class GameDodo(Game):
 
 
 def new_dodo(h: int) -> State:
+    h=h-1 # pour avoir un plateau de taille h
     res: State = ()
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
@@ -376,6 +370,7 @@ def new_dodo(h: int) -> State:
 
 
 def new_gopher(h: int) -> State:
+    h=h-1 # pour avoir un plateau de taille h
     res: State = ()
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
