@@ -1,0 +1,323 @@
+from typing import Union
+from tools.hexagons import *
+import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
+import random
+
+Cell = Hex
+ActionGopher = Cell
+ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
+Action = Union[ActionGopher, ActionDodo]
+Player = int  # 1 ou 2
+R = 1
+B = 2
+EMPTY = 0
+Score = int
+Time = int
+State = dict[Hex, Player]
+
+State_non_mutable = tuple[collections.namedtuple("Case", ["Hex", "Player"]), ...]
+
+
+# -------- Conversion pour passage mutable - non-mutable --------
+def tuple_to_dict(state: State_non_mutable) -> State:
+    res = {}
+    for case in state:
+        res[case.Hex] = case.Player
+    return res
+
+
+def dict_to_tuple(state: State) -> State_non_mutable:
+    res = []
+    for hexagon, player in state.items():
+        res.append(collections.namedtuple("Case", ["Hex", "Player"])(hexagon, player))
+    return tuple(res)
+
+
+# -------- Environnement --------
+
+
+class Game:
+    def __init__(
+        self,
+        state: State,
+        player: Player,
+        hex_size: int,
+        total_time: Time,
+        red_pawns: State = {},
+        blue_pawns: State = {},
+    ):
+        if player not in [R, B]:
+            raise ValueError("player must be 1 or 2")
+        if hex_size < 1:
+            raise ValueError("hex_size must be >= 1")
+        # if not valid(state) : error
+
+        self.state: State = state
+        self.player: Player = player
+        self.hex_size: int = hex_size
+        self.total_time: Time = total_time
+        self.red_pawns: State = red_pawns
+        self.blue_pawns: State = blue_pawns
+
+    def plot(self):
+        plt.figure(figsize=(10, 10))
+        layout = Layout(layout_ia02, Point(1, -1), Point(0, 0))
+
+        for hexagon, player in self.state.items():
+            corners = polygon_corners(layout, hexagon)
+            center = hex_to_pixel(layout, hexagon)
+
+            if player == R:
+                color = "red"
+                text_color = "white"
+            elif player == B:
+                color = "blue"
+                text_color = "white"
+            else:
+                color = "white"
+                text_color = "black"
+
+            polygon = Polygon(corners, edgecolor="black", facecolor=color, linewidth=2)
+
+            plt.gca().add_patch(polygon)
+            plt.text(
+                center.x,
+                center.y,
+                f"{hexagon.q}, {hexagon.r}",
+                ha="center",
+                va="center",
+                color=text_color,
+            )
+        size = 1.9 * self.hex_size
+        plt.xlim(-size, size)
+        plt.ylim(-size, size)
+        plt.show()
+
+    def final(self) -> bool:
+        return not self.legals()
+
+    def strategy_random(self) -> Action:
+        return random.choice(self.legals())
+
+
+Environment = Game
+
+
+class GameGopher(Game):
+    def __init__(
+        self,
+        game: str,
+        state: State,
+        player: Player,
+        hex_size: int,
+        total_time: Time,
+        red_pawns: State = {},
+        blue_pawns: State = {},
+    ):
+        super().__init__(state, player, hex_size, total_time, red_pawns, blue_pawns)
+        self.game = game
+        self.initial_state: bool = False
+
+    def empty(self) -> bool:
+        bool = True
+        for _, player in self.state.items():
+            if player != EMPTY:
+                bool = False
+        return bool
+
+    def legals(self) -> list[ActionGopher]:
+        """
+        Red begins the game by placing a stone anywhere on the board. Then, starting with Blue, players take turns placing a stone which forms exactly one enemy connection and no friendly connections
+        """
+        res: set[ActionGopher] = set()
+
+        # first move can be anywhere
+        if self.initial_state:
+            for hexagon, _ in self.state.items():
+                res.add(hexagon)
+            res = list(res)
+            debug(res)
+            return res
+
+        neighbor = [
+            axial_to_cube(DoubledCoord(-1, 0)),
+            axial_to_cube(DoubledCoord(-1, -1)),
+            axial_to_cube(DoubledCoord(0, -1)),
+            axial_to_cube(DoubledCoord(0, 1)),
+            axial_to_cube(DoubledCoord(1, 1)),
+            axial_to_cube(DoubledCoord(1, 0)),
+        ]
+
+        # for every enemy paws, check all neighbors and for every neighbor, count number of friendly and enemy paws
+        # O(nb_paws_enemy*6) = O(nb_paws_enemy)
+        for hexagon, _ in (
+            self.red_pawns.items() if self.player == B else self.blue_pawns.items()
+        ):
+            moves: State = {}
+            # O(6) = O(1)
+            for n in neighbor:
+                move = Hex(hexagon.q + n.q, hexagon.r + n.r, hexagon.s + n.s)
+                if move in self.state:
+                    moves[move] = self.state[move]
+
+            # O(6*6) = O(1)
+            for move, play in moves.items():
+                if play == EMPTY:
+                    enemy: int = 0
+                    friendly: int = 0
+                    # O(6) = O(1)
+                    for n in neighbor:
+                        nei = Hex(move.q + n.q, move.r + n.r, move.s + n.s)
+                        if nei in self.state and self.state[nei] == self.player:
+                            friendly += 1
+                        elif nei in self.state and self.state[nei] == 3 - self.player:
+                            enemy += 1
+                    if enemy == 1 and friendly == 0:
+                        res.add(move)
+        return list(res)
+
+    def play(self, action: ActionGopher):
+        # update party state
+        self.state[action] = self.player
+
+        # update pawns
+        if self.player == R:
+            self.red_pawns[action] = self.player
+        else:
+            self.blue_pawns[action] = self.player
+
+        if self.initial_state:
+            self.initial_state = False
+        self.player = 3 - self.player  # changement de joueur
+
+    def score(self) -> Score:
+        return 1 if self.player == R else -1
+
+
+class GameDodo(Game):
+    def __init__(
+        self,
+        game: str,
+        state: State,
+        player: Player,
+        hex_size: int,
+        total_time: Time,
+        red_pawns: State = {},
+        blue_pawns: State = {},
+    ):
+        super().__init__(state, player, hex_size, total_time, red_pawns, blue_pawns)
+        self.game = game
+
+    def legals(self) -> list[ActionDodo]:
+        """
+        All moves are to unoccupied cells. Players can move their checkers one cell directly forward or diagonally forward.
+        """
+        res: set[ActionDodo] = set()
+
+        forward_blue = [
+            axial_to_cube(DoubledCoord(-1, 0)),
+            axial_to_cube(DoubledCoord(-1, -1)),
+            axial_to_cube(DoubledCoord(0, -1)),
+        ]
+        forward_red = [
+            axial_to_cube(DoubledCoord(0, 1)),
+            axial_to_cube(DoubledCoord(1, 1)),
+            axial_to_cube(DoubledCoord(1, 0)),
+        ]
+
+        # O(nb_paws*6) = O(nb_paws)
+        for hexagon, player in (
+            self.red_pawns.items() if self.player == R else self.blue_pawns.items()
+        ):
+            # O(6) = O(1)
+            for possible_move in forward_blue if player == B else forward_red:
+                move = Hex(
+                    hexagon.q + possible_move.q,
+                    hexagon.r + possible_move.r,
+                    hexagon.s + possible_move.s,
+                )
+                if move in self.state and self.state[move] == EMPTY:
+                    res.add((hexagon, move))
+
+        return list(res)
+
+    def play(self, action: ActionDodo):
+        # update party state
+        self.state[action[0]] = EMPTY
+        self.state[action[1]] = self.player
+
+        # update pawns
+        if self.player == R:
+            del self.red_pawns[action[0]]
+            self.red_pawns[action[1]] = self.player
+        else:
+            del self.blue_pawns[action[0]]
+            self.blue_pawns[action[1]] = self.player
+
+        self.player = 3 - self.player  # changement de joueur
+
+    def score(self) -> Score:
+        return -1 if self.player == R else 1
+
+
+# -------- Initlisation des plateaux de jeu --------
+
+
+def new_dodo(h: int) -> State:
+    h = h - 1  # pour avoir un plateau de taille h
+    res: State = {}
+    for r in range(h, -h - 1, -1):
+        qmin = max(-h, r - h)
+        qmax = min(h, r + h)
+        for q in range(qmin, qmax + 1):
+            res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
+            if -q > r + (h - 2):
+                res[axial_to_cube(DoubledCoord(q, r))] = R
+            elif r > -q + (h - 2):
+                res[axial_to_cube(DoubledCoord(q, r))] = B
+    return res
+
+
+def new_gopher(h: int) -> State:
+    h = h - 1  # pour avoir un plateau de taille h
+    res: State = {}
+    for r in range(h, -h - 1, -1):
+        qmin = max(-h, r - h)
+        qmax = min(h, r + h)
+        for q in range(qmin, qmax + 1):
+            res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
+    return res
+
+
+def initialize(
+    game: str, state: State, player: Player, hex_size: int, total_time: Time
+) -> Environment:
+    """
+    Initialize the environment with the game, the state, the player, the hex_size and the total_time
+    """
+    if game == "Gopher":
+        env = GameGopher(game, state, player, hex_size, total_time)
+        if env.empty():
+            env.initial_state = True
+    elif game == "Dodo":
+        # init pawns of each player
+        red_pawns: State = {}
+        blue_pawns: State = {}
+        for hexagon, play in state.items():
+            if play == R:
+                red_pawns[hexagon] = play
+            elif play == B:
+                blue_pawns[hexagon] = play
+        # create environment
+        env = GameDodo(game, state, player, hex_size, total_time, red_pawns, blue_pawns)
+    else:
+        raise ValueError("game must be 'Gopher' or 'Dodo'")
+    return env
+
+
+def debug(res: list[Action]):
+    pass
+    # print("--------------------")
+    # for actions in res:
+    #    print(actions)
