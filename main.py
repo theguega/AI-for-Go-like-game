@@ -9,12 +9,13 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Dodo"
     size = 10
-    if name == "Dodo":
-        initial_state = gopher_dodo.new_dodo(size)
-    elif name == "Gopher":
-        initial_state = gopher_dodo.new_gopher(size)
 
-    for i in range(100):
+    for i in range(10):
+        if name == "Dodo":
+            initial_state = gopher_dodo.new_dodo(size)
+        elif name == "Gopher":
+            initial_state = gopher_dodo.new_gopher(size)
+            
         initial_state = gopher_dodo.new_dodo(size)
         env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
         while not env.final():

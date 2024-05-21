@@ -226,11 +226,11 @@ class GameDodo(Game):
             axial_to_cube(DoubledCoord(1, 0)),
         ]
 
-        # O(nb_paws*6) = O(nb_paws)
+        # O(nb_paws*3) = O(nb_paws)
         for hexagon, player in (
             self.red_pawns.items() if self.player == R else self.blue_pawns.items()
         ):
-            # O(6) = O(1)
+            # O(3) = O(1)
             for possible_move in forward_blue if player == B else forward_red:
                 move = Hex(
                     hexagon.q + possible_move.q,
