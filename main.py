@@ -7,16 +7,16 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Dodo"
+    name = "Gopher"
     size = 10
+    nb_iteration = 100
 
-    for i in range(10):
+    for i in range(nb_iteration):
         if name == "Dodo":
             initial_state = gopher_dodo.new_dodo(size)
         elif name == "Gopher":
             initial_state = gopher_dodo.new_gopher(size)
-            
-        initial_state = gopher_dodo.new_dodo(size)
+
         env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
         while not env.final():
             if env.player == gopher_dodo.R:
