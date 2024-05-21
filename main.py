@@ -7,15 +7,16 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Gopher"
-    size = 5
+    name = "Dodo"
+    size = 10
     if name == "Dodo":
         initial_state = gopher_dodo.new_dodo(size)
     elif name == "Gopher":
         initial_state = gopher_dodo.new_gopher(size)
 
-    for _ in range(100):
-        env = gopher_dodo.initialize(name, initial_state, gopher_dodo.B, size, 50)
+    for i in range(100):
+        initial_state = gopher_dodo.new_dodo(size)
+        env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
         while not env.final():
             if env.player == gopher_dodo.R:
                 action = env.strategy_random()
@@ -25,9 +26,9 @@ if __name__ == "__main__":
 
     """
     if env.score() == 1:
-        print("Blue wins")
-    elif env.score() == -1:
         print("Red wins")
+    elif env.score() == -1:
+        print("Blue wins")
     """
 
     # ---- Affichage du profilage ----
@@ -37,4 +38,4 @@ if __name__ == "__main__":
     stats.print_stats()
 
     # ---- Affichage du plateau en fin de partie ----
-    env.plot()
+    #env.plot()
