@@ -14,23 +14,8 @@ B = 2
 EMPTY = 0
 Score = int
 Time = int
-Case = collections.namedtuple("Case", ["Hex", "Player"])
-State = tuple[Case, ...]
-
-
-# -------- Conversion pour passage mutable - non-mutable --------
-def state_to_dict(state: State) -> dict[Hex, Player]:
-    res = {}
-    for case in state:
-        res[case.Hex] = case.Player
-    return res
-
-
-def dict_to_state(d: dict[Hex, Player]) -> State:
-    res = []
-    for hex, player in d.items():
-        res += (Case(hex, player),)
-    return tuple(res)
+State = dict[Hex, Player]
+Neighbors = dict[Hex, list[Hex]]
 
 
 # -------- Environnement --------
@@ -39,31 +24,29 @@ def dict_to_state(d: dict[Hex, Player]) -> State:
 class Game:
     def __init__(
         self,
+        game : str,
         state: State,
         player: Player,
         hex_size: int,
         total_time: Time,
-        red_pawns: State = (),
-        blue_pawns: State = (),
     ):
         if player not in [R, B]:
             raise ValueError("player must be 1 or 2")
         if hex_size < 1:
             raise ValueError("hex_size must be >= 1")
-        # if not valid(state) : error
 
+        self.game : str=game
         self.state: State = state
         self.player: Player = player
         self.hex_size: int = hex_size
         self.total_time: Time = total_time
-        self.red_pawns: State = red_pawns
-        self.blue_pawns: State = blue_pawns
+        self.final_state:bool = False
 
     def plot(self):
         plt.figure(figsize=(10, 10))
         layout = Layout(layout_ia02, Point(1, -1), Point(0, 0))
 
-        for hexagon, player in self.state:
+        for hexagon, player in self.state.items():
             corners = polygon_corners(layout, hexagon)
             center = hex_to_pixel(layout, hexagon)
 
@@ -94,11 +77,13 @@ class Game:
         plt.show()
 
     def final(self) -> bool:
-        return not self.legals()
+        return self.final_state
 
-    def strategy_random(self) -> ActionDodo:
-        return random.choice(self.legals())
-
+    def strategy_random(self) -> Action:
+        res = self.legals()
+        if len(res) == 0:
+            return None
+        return random.choice(res)
 
 Environment = Game
 
@@ -111,38 +96,16 @@ class GameGopher(Game):
         player: Player,
         hex_size: int,
         total_time: Time,
-        red_pawns: State = (),
-        blue_pawns: State = (),
     ):
-        super().__init__(state, player, hex_size, total_time, red_pawns, blue_pawns)
-        self.game = game
-        self.initial_state: bool = False
+        # initialisation de la classe mère
+        super().__init__(game, state, player, hex_size, total_time)
 
-    def empty(self) -> bool:
-        bool = True
-        for _, player in self.state:
-            if player != EMPTY:
-                bool = False
-        return bool
+        # initialisation des pions
+        self.red_pawns: State = {}
+        self.blue_pawns: State = {}
 
-    def score(self) -> Score:
-        return 1 if self.player == R else -1
-
-    def legals(self) -> list[ActionGopher]:
-        """
-        Red begins the game by placing a stone anywhere on the board. Then, starting with Blue, players take turns placing a stone which forms exactly one enemy connection and no friendly connections
-        """
-        res: set[ActionGopher] = set()
-
-        # first move can be anywhere
-        if self.initial_state:
-            for hexagon, _ in self.state:
-                res.add(hexagon)
-            res = list(res)
-            debug(res)
-            return res
-
-        neighbor = [
+        # initilisations de tous les voisins
+        neighbor_gopher = [
             axial_to_cube(DoubledCoord(-1, 0)),
             axial_to_cube(DoubledCoord(-1, -1)),
             axial_to_cube(DoubledCoord(0, -1)),
@@ -151,95 +114,81 @@ class GameGopher(Game):
             axial_to_cube(DoubledCoord(1, 0)),
         ]
 
-        dict = state_to_dict(self.state)
+        self.neighbors: Neighbors = {}
 
-        # for every enemy paws, check all neighbors and for every neighbor, count number of friendly and enemy paws
-        # O(nb_paws_enemy*6) = O(nb_paws_enemy)
-        for hexagon, _ in self.red_pawns if self.player == B else self.blue_pawns:
-            moves: State = ()
+        for hexagon, _ in state.items():
+            self.neighbors[hexagon] = []
+            
+            for n in neighbor_gopher:
+                neighbor = Hex(hexagon.q + n.q, hexagon.r + n.r, hexagon.s + n.s)
+                if neighbor in state:
+                    self.neighbors[hexagon].append(neighbor)
+
+    def legals(self) -> list[ActionGopher]:
+        """
+        Red begins the game by placing a stone anywhere on the board. Then, starting with Blue, players take turns placing a stone which forms exactly one enemy connection and no friendly connections
+        """
+        res: list[ActionGopher] = []
+
+        # first move can be anywhere
+        if len(self.red_pawns) == 0 and len(self.blue_pawns) == 0:
+            for hexagon, _ in self.state.items():
+                res.append(hexagon)
+            return res
+
+        #else, we we can place a pawn on a cell that has exactly one enemy connection and no friendly connections
+        # O(nb_paws) = O(nb_paws)
+        for hexagon, _ in (
+            self.red_pawns.items() if self.player == B else self.blue_pawns.items()
+        ):  
             # O(6) = O(1)
-            for n in neighbor:
-                move = Hex(hexagon.q + n.q, hexagon.r + n.r, hexagon.s + n.s)
-                if move in dict:
-                    moves += (Case(move, dict[move]),)
-
+            moves : list[Cell] = []
+            for neighbor in self.neighbors[hexagon]:
+                if self.state[neighbor] == EMPTY:
+                    moves.append(neighbor)
             # O(6*6) = O(1)
-            for move, play in moves:
-                if play == EMPTY:
-                    enemy: int = 0
-                    friendly: int = 0
-                    # O(6) = O(1)
-                    for n in neighbor:
-                        nei = Hex(move.q + n.q, move.r + n.r, move.s + n.s)
-                        if nei in dict and dict[nei] == self.player:
-                            friendly += 1
-                        elif nei in dict and dict[nei] == 3 - self.player:
-                            enemy += 1
-                    if enemy == 1 and friendly == 0:
-                        res.add(move)
-        
-        res = list(res)
-        debug(res)
+            for move in moves:
+                enemy: int = 0
+                friendly: int = 0
+                for n in self.neighbors[move]:
+                    if self.state[n] == self.player:
+                        friendly += 1
+                    elif self.state[n] == 3 - self.player:
+                        enemy += 1
+                if enemy == 1 and friendly == 0:
+                    res.append(move)
+
+        if len(res) == 0:
+            self.final_state = True
+
         return res
 
     def play(self, action: ActionGopher):
         # update party state
-        state = state_to_dict(self.state)
-        state[action] = self.player
+        self.state[action] = self.player
 
         # update pawns
         if self.player == R:
-            red_pawns = state_to_dict(self.red_pawns)
-            red_pawns[action] = self.player
-            self.red_pawns = dict_to_state(red_pawns)
+            self.red_pawns[action] = self.player
         else:
-            blue_pawns = state_to_dict(self.blue_pawns)
-            blue_pawns[action] = self.player
-            self.blue_pawns = dict_to_state(blue_pawns)
+            self.blue_pawns[action] = self.player
 
-        return GameGopher(
-            "Gopher",
-            dict_to_state(state),
-            3 - self.player,
-            self.hex_size,
-            self.total_time,
-            red_pawns=self.red_pawns,
-            blue_pawns=self.blue_pawns,
-        )
-    
-    def alpha_beta_action(self, depth: int, alpha: int, beta: int, player: Player) -> tuple[float, ActionGopher]:
-        if depth == 0 or self.final():
-            return self.score(), None
+        self.player = 3 - self.player  # changement de joueur
 
-        if player == R:
-            max_eval = -float("inf")
-            best_action = None
-            for action in self.legals():
-                new_env = self.play(action)
-                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, B)[0]
-                if eval > max_eval:
-                    max_eval = eval
-                    best_action = action
-                alpha = max(alpha, eval)
-                if beta <= alpha:
-                    break # beta cut-off
-            return max_eval, best_action
+    def undo(self, action: ActionGopher):
+        self.player = 3 - self.player  # repassage au joueur précédent
+
+        #update party state
+        self.state[action] = EMPTY
+
+        #update pawns
+        if self.player == R:
+            del self.red_pawns[action]
         else:
-            min_eval = float("inf")
-            best_action = None
-            for action in self.legals():
-                new_env = self.play(action)
-                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, R)[0]
-                if eval < min_eval:
-                    min_eval = eval
-                    best_action = action
-                beta = min(beta, eval)
-                if beta <= alpha:
-                    break # alpha cut-off
-            return min_eval, best_action
-        
-    def strategy_alpha_beta(self) -> ActionGopher:
-        return self.alpha_beta_action(5, -float("inf"), float("inf"), self.player)[1]
+            del self.blue_pawns[action]
+
+    def score(self) -> Score:
+        return -1 if self.player == R else 1
 
 
 class GameDodo(Game):
@@ -250,19 +199,20 @@ class GameDodo(Game):
         player: Player,
         hex_size: int,
         total_time: Time,
-        red_pawns: State = (),
-        blue_pawns: State = (),
-    ):
-        super().__init__(state, player, hex_size, total_time, red_pawns, blue_pawns)
-        self.game = game
-        self.initial_state: bool = False
+    ):  
+        # initialisation de la classe mère
+        super().__init__(game, state, player, hex_size, total_time)
 
-    def legals(self) -> list[ActionDodo]:
-        """
-        All moves are to unoccupied cells. Players can move their checkers one cell directly forward or diagonally forward.
-        """
-        res: set[ActionDodo] = set()
+        # initialisation des pions
+        self.red_pawns: list[Cell] =[]
+        self.blue_pawns: list[Cell] = []
+        for hexagon, play in state.items():
+            if play == R:
+                self.red_pawns.append(hexagon)
+            elif play == B:
+                self.blue_pawns.append(hexagon)
 
+        #initilisations de tous les voisins
         forward_blue = [
             axial_to_cube(DoubledCoord(-1, 0)),
             axial_to_cube(DoubledCoord(-1, -1)),
@@ -274,109 +224,99 @@ class GameDodo(Game):
             axial_to_cube(DoubledCoord(1, 0)),
         ]
 
-        dict = state_to_dict(self.state)
+        self.red_forward: Neighbors = {}
+        self.blue_forward: Neighbors = {}
+
+        for hexagon, _ in state.items():
+            self.red_forward[hexagon] = []
+            self.blue_forward[hexagon] = []
+            
+            for n_red in forward_red:
+                neighbor_red = Hex(hexagon.q + n_red.q, hexagon.r + n_red.r, hexagon.s + n_red.s)
+                if neighbor_red in state:
+                    self.red_forward[hexagon].append(neighbor_red)
+            for n_blue in forward_blue:
+                neighbor_blue = Hex(hexagon.q + n_blue.q, hexagon.r + n_blue.r, hexagon.s + n_blue.s)
+                if neighbor_blue in state:
+                    self.blue_forward[hexagon].append(neighbor_blue)
+
+    def legals(self) -> list[ActionDodo]:
+        """
+        All moves are to unoccupied cells. Players can move their checkers one cell directly forward or diagonally forward.
+        """
+        res: list[ActionDodo] = []
 
         # O(nb_paws*3) = O(nb_paws)
-        for hexagon, player in self.red_pawns if self.player == R else self.blue_pawns:
-            #O(6) = O(1)
-            for possible_move in forward_blue if player == B else forward_red:
-                move = Hex(hexagon.q + possible_move.q, hexagon.r + possible_move.r, hexagon.s + possible_move.s)
-                if move in dict and dict[move] == EMPTY:
-                    res.add((hexagon, move))
+        for hexagon in (self.red_pawns if self.player == R else self.blue_pawns):
+            for possible_move in self.red_forward[hexagon] if self.player == R else self.blue_forward[hexagon]:
+                if self.state[possible_move] == EMPTY:
+                    res.append((hexagon, possible_move))
 
-        debug(res)
-        return list(res)
+        if len(res) == 0:
+            self.final_state = True
 
-    def final(self) -> bool:
-        return not self.legals()
+        return res
 
-    def score(self) -> Score:
-        return 1 if self.player == B else -1
-    def play(self, action: ActionDodo) -> Environment:
+    def play(self, action: ActionDodo):
         # update party state
-        state = state_to_dict(self.state)
-        state[action[0]] = EMPTY
-        state[action[1]] = self.player
-        self.state = dict_to_state(state)
+        self.state[action[0]] = EMPTY
+        self.state[action[1]] = self.player
 
         # update pawns
         if self.player == R:
-            red_pawns = state_to_dict(self.red_pawns)
-            del red_pawns[action[0]]
-            red_pawns[action[1]] = self.player
-            self.red_pawns = dict_to_state(red_pawns)
+            self.red_pawns.remove(action[0])
+            self.red_pawns.append(action[1])
         else:
-            blue_pawns = state_to_dict(self.blue_pawns)
-            del blue_pawns[action[0]]
-            blue_pawns[action[1]] = self.player
-            self.blue_pawns = dict_to_state(blue_pawns)
+            self.blue_pawns.remove(action[0])
+            self.blue_pawns.append(action[1])
 
-        self.player = 3 - self.player #changement de joueur
-    
+        self.player = 3 - self.player  # changement de joueur
+
+    def undo(self, action: ActionDodo):
+        self.player = 3 - self.player  # repassage au joueur précédent
+
+        #update party state
+        self.state[action[0]] = self.player
+        self.state[action[1]] = EMPTY
+
+        #update pawns
+        if self.player == R:
+            self.red_pawns.remove(action[1])
+            self.red_pawns.append(action[0])
+        else:
+            self.blue_pawns.remove(action[1])
+            self.blue_pawns.append(action[0])
+
     def score(self) -> Score:
-        return -1 if self.player == R else 1
-
-    def alpha_beta_action(self, depth: int, alpha: int, beta: int, player: Player) -> tuple[float, ActionDodo]:
-        if depth == 0 or self.final():
-            return self.score(), None
-
-        if player == R:
-            max_eval = -float("inf")
-            best_action = None
-            for action in self.legals():
-                new_env = self.play(action)
-                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, B)[0]
-                if eval > max_eval:
-                    max_eval = eval
-                    best_action = action
-                alpha = max(alpha, eval)
-                if beta <= alpha:
-                    break  # beta cut-off
-            return max_eval, best_action
-        else:
-            min_eval = float("inf")
-            best_action = None
-            for action in self.legals():
-                new_env = self.play(action)
-                eval = new_env.alpha_beta_action(depth - 1, alpha, beta, R)[0]
-                if eval < min_eval:
-                    min_eval = eval
-                    best_action = action
-                beta = min(beta, eval)
-                if beta <= alpha:
-                    break  # alpha cut-off
-            return min_eval, best_action
-
-    def strategy_alpha_beta(self) -> ActionDodo:
-        return self.alpha_beta_action(5, -float("inf"), float("inf"), self.player)[1]
+        return 1 if self.player == R else -1
 
 
-# -------- Initialisation des plateaux de jeu --------
+# -------- Initlisation des plateaux de jeu --------
 
 
 def new_dodo(h: int) -> State:
-    h=h-1 # pour avoir un plateau de taille h
-    res: State = ()
+    h = h - 1  # pour avoir un plateau de taille h
+    res: State = {}
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
         qmax = min(h, r + h)
         for q in range(qmin, qmax + 1):
-            res += (Case(axial_to_cube(DoubledCoord(q, r)), EMPTY),)
+            res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
             if -q > r + (h - 2):
-                res += (Case(axial_to_cube(DoubledCoord(q, r)), R),)
+                res[axial_to_cube(DoubledCoord(q, r))] = R
             elif r > -q + (h - 2):
-                res += (Case(axial_to_cube(DoubledCoord(q, r)), B),)
+                res[axial_to_cube(DoubledCoord(q, r))] = B
     return res
 
 
 def new_gopher(h: int) -> State:
-    h=h-1 # pour avoir un plateau de taille h
-    res: State = ()
+    h = h - 1  # pour avoir un plateau de taille h
+    res: State = {}
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
         qmax = min(h, r + h)
         for q in range(qmin, qmax + 1):
-            res += (Case(axial_to_cube(DoubledCoord(q, r)), EMPTY),)
+            res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
     return res
 
 
@@ -388,26 +328,8 @@ def initialize(
     """
     if game == "Gopher":
         env = GameGopher(game, state, player, hex_size, total_time)
-        if env.empty():
-            env.initial_state = True
     elif game == "Dodo":
-        # init pawns of each player
-        red_pawns: State = ()
-        blue_pawns: State = ()
-        for hexagon, player in state:
-            if player == R:
-                red_pawns += (Case(hexagon, player),)
-            elif player == B:
-                blue_pawns += (Case(hexagon, player),)
-        # create environment
-        env = GameDodo(game, state, player, hex_size, total_time, red_pawns, blue_pawns)
+        env = GameDodo(game, state, player, hex_size, total_time)
     else:
         raise ValueError("game must be 'Gopher' or 'Dodo'")
     return env
-
-
-def debug(res: list[Action]):
-    pass
-    # print("--------------------")
-    # for actions in res:
-    #    print(actions)
