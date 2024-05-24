@@ -333,10 +333,3 @@ def initialize(
     else:
         raise ValueError("game must be 'Gopher' or 'Dodo'")
     return env
-
-
-def debug(res: list[Action]):
-    pass
-    # print("--------------------")
-    # for actions in res:
-    #    print(actions)
