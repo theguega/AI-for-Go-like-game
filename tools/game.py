@@ -77,13 +77,55 @@ class Game:
         plt.show()
 
     def final(self) -> bool:
-        return self.final_state
+        return not self.legals()
 
     def strategy_random(self) -> Action:
         res = self.legals()
         if len(res) == 0:
             return None
         return random.choice(res)
+    
+    def strategy_alpha_beta(self) -> Action:
+        return self.alpha_beta(5, -float("inf"), float("inf"))[0]
+    
+    def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
+        if depth == 0 or self.final():
+            return None, self.score()
+
+        if self.player == R:
+            best_score = -float("inf")
+            best_action = None
+            for action in self.legals():
+                self.play(action)
+                _, score = self.alpha_beta(depth - 1, alpha, beta)
+                self.undo(action)
+                if score > best_score:
+                    best_score = score
+                    best_action = action
+                alpha = max(alpha, best_score)
+                if beta <= alpha:
+                    break
+            return best_action, best_score
+        else:
+            best_score = float("inf")
+            best_action = None
+            for action in self.legals():
+                self.play(action)
+                _, score = self.alpha_beta(depth - 1, alpha, beta)
+                self.undo(action)
+                if score < best_score:
+                    best_score = score
+                    best_action = action
+                beta = min(beta, best_score)
+                if beta <= alpha:
+                    break
+            return best_action, best_score
+    
+    def strategy_monte_carlo(self) -> Action:
+        return self.monte_carlo_actions()[0]
+
+    def monte_carlo_actions(self) -> list[Action]:
+        return []
 
 Environment = Game
 
@@ -286,6 +328,9 @@ class GameDodo(Game):
         else:
             self.blue_pawns.remove(action[1])
             self.blue_pawns.append(action[0])
+
+        if self.final_state:
+            self.final_state = False
 
     def score(self) -> Score:
         return 1 if self.player == R else -1

@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     # ---- Boucle de jeu ----
     name = "Gopher"
-    size = 10
+    size = 5
     nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
@@ -24,7 +24,7 @@ if __name__ == "__main__":
             if env.player == gopher_dodo.R:
                 action = env.strategy_random()
             else:
-                action = env.strategy_random()
+                action = env.strategy_alpha_beta()
             if action is not None:
                 env.play(action)
         
@@ -43,4 +43,4 @@ if __name__ == "__main__":
     print("Victoire rouge : ", victoire_rouge)
     print("Victoire bleu : ", victoire_bleu)
     print("Avantage rouge par rapport au bleu :", (victoire_rouge-victoire_bleu)/nb_iteration*100, "%")
-    #env.plot()
+    env.plot()
