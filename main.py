@@ -10,6 +10,8 @@ if __name__ == "__main__":
     name = "Gopher"
     size = 10
     nb_iteration = 100
+    victoire_rouge = 0
+    victoire_bleu = 0
 
     for i in range(nb_iteration):
         if name == "Dodo":
@@ -23,14 +25,13 @@ if __name__ == "__main__":
                 action = env.strategy_random()
             else:
                 action = env.strategy_random()
-            env.play(action)
-
-    """
-    if env.score() == 1:
-        print("Red wins")
-    elif env.score() == -1:
-        print("Blue wins")
-    """
+            if action is not None:
+                env.play(action)
+        
+        if env.score() == 1:
+            victoire_rouge += 1
+        elif env.score() == -1:
+            victoire_bleu += 1
 
     # ---- Affichage du profilage ----
 
@@ -38,5 +39,8 @@ if __name__ == "__main__":
     stats = pstats.Stats(profiler).sort_stats("tottime")
     stats.print_stats()
 
-    # ---- Affichage du plateau en fin de partie ----
+    # ---- Affichage de fin de partie ----
+    print("Victoire rouge : ", victoire_rouge)
+    print("Victoire bleu : ", victoire_bleu)
+    print("Avantage rouge par rapport au bleu :", (victoire_rouge-victoire_bleu)/nb_iteration*100, "%")
     #env.plot()

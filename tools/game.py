@@ -40,6 +40,7 @@ class Game:
         self.player: Player = player
         self.hex_size: int = hex_size
         self.total_time: Time = total_time
+        self.final_state:bool = False
 
     def plot(self):
         plt.figure(figsize=(10, 10))
@@ -76,11 +77,13 @@ class Game:
         plt.show()
 
     def final(self) -> bool:
-        return not self.legals()
+        return self.final_state
 
     def strategy_random(self) -> Action:
-        return random.choice(self.legals())
-
+        res = self.legals()
+        if len(res) == 0:
+            return None
+        return random.choice(res)
 
 Environment = Game
 
@@ -96,9 +99,6 @@ class GameGopher(Game):
     ):
         # initialisation de la classe mère
         super().__init__(game, state, player, hex_size, total_time)
-        
-        # initialisation de l'état initial
-        self.initial_state: bool = False
 
         # initialisation des pions
         self.red_pawns: State = {}
@@ -124,13 +124,6 @@ class GameGopher(Game):
                 if neighbor in state:
                     self.neighbors[hexagon].append(neighbor)
 
-    def empty(self) -> bool:
-        bool = True
-        for _, player in self.state.items():
-            if player != EMPTY:
-                bool = False
-        return bool
-
     def legals(self) -> list[ActionGopher]:
         """
         Red begins the game by placing a stone anywhere on the board. Then, starting with Blue, players take turns placing a stone which forms exactly one enemy connection and no friendly connections
@@ -138,11 +131,12 @@ class GameGopher(Game):
         res: list[ActionGopher] = []
 
         # first move can be anywhere
-        if self.initial_state:
+        if len(self.red_pawns) == 0 and len(self.blue_pawns) == 0:
             for hexagon, _ in self.state.items():
                 res.append(hexagon)
             return res
 
+        #else, we we can place a pawn on a cell that has exactly one enemy connection and no friendly connections
         # O(nb_paws) = O(nb_paws)
         for hexagon, _ in (
             self.red_pawns.items() if self.player == B else self.blue_pawns.items()
@@ -164,6 +158,9 @@ class GameGopher(Game):
                 if enemy == 1 and friendly == 0:
                     res.append(move)
 
+        if len(res) == 0:
+            self.final_state = True
+
         return res
 
     def play(self, action: ActionGopher):
@@ -176,9 +173,19 @@ class GameGopher(Game):
         else:
             self.blue_pawns[action] = self.player
 
-        if self.initial_state:
-            self.initial_state = False
         self.player = 3 - self.player  # changement de joueur
+
+    def undo(self, action: ActionGopher):
+        self.player = 3 - self.player  # repassage au joueur précédent
+
+        #update party state
+        self.state[action] = EMPTY
+
+        #update pawns
+        if self.player == R:
+            del self.red_pawns[action]
+        else:
+            del self.blue_pawns[action]
 
     def score(self) -> Score:
         return -1 if self.player == R else 1
@@ -232,10 +239,6 @@ class GameDodo(Game):
                 neighbor_blue = Hex(hexagon.q + n_blue.q, hexagon.r + n_blue.r, hexagon.s + n_blue.s)
                 if neighbor_blue in state:
                     self.blue_forward[hexagon].append(neighbor_blue)
-        
-
-            
-
 
     def legals(self) -> list[ActionDodo]:
         """
@@ -248,6 +251,9 @@ class GameDodo(Game):
             for possible_move in self.red_forward[hexagon] if self.player == R else self.blue_forward[hexagon]:
                 if self.state[possible_move] == EMPTY:
                     res.append((hexagon, possible_move))
+
+        if len(res) == 0:
+            self.final_state = True
 
         return res
 
@@ -265,6 +271,21 @@ class GameDodo(Game):
             self.blue_pawns.append(action[1])
 
         self.player = 3 - self.player  # changement de joueur
+
+    def undo(self, action: ActionDodo):
+        self.player = 3 - self.player  # repassage au joueur précédent
+
+        #update party state
+        self.state[action[0]] = self.player
+        self.state[action[1]] = EMPTY
+
+        #update pawns
+        if self.player == R:
+            self.red_pawns.remove(action[1])
+            self.red_pawns.append(action[0])
+        else:
+            self.blue_pawns.remove(action[1])
+            self.blue_pawns.append(action[0])
 
     def score(self) -> Score:
         return 1 if self.player == R else -1
@@ -307,8 +328,6 @@ def initialize(
     """
     if game == "Gopher":
         env = GameGopher(game, state, player, hex_size, total_time)
-        if env.empty():
-            env.initial_state = True
     elif game == "Dodo":
         env = GameDodo(game, state, player, hex_size, total_time)
     else:
