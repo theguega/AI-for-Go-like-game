@@ -40,7 +40,6 @@ class Game:
         self.player: Player = player
         self.hex_size: int = hex_size
         self.total_time: Time = total_time
-        self.final_state:bool = False
 
     def plot(self):
         plt.figure(figsize=(10, 10))
@@ -81,15 +80,15 @@ class Game:
 
     def strategy_random(self) -> Action:
         res = self.legals()
-        if len(res) == 0:
-            return None
         return random.choice(res)
     
     def strategy_alpha_beta(self) -> Action:
         return self.alpha_beta(5, -float("inf"), float("inf"))[0]
     
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
-        if depth == 0 or self.final():
+        if depth == 0:
+            return None, self.heuristic_evaluation()
+        if self.final():
             return None, self.score()
 
         if self.player == R:
@@ -120,12 +119,6 @@ class Game:
                 if beta <= alpha:
                     break
             return best_action, best_score
-    
-    def strategy_monte_carlo(self) -> Action:
-        return self.monte_carlo_actions()[0]
-
-    def monte_carlo_actions(self) -> list[Action]:
-        return []
 
 Environment = Game
 
@@ -200,9 +193,6 @@ class GameGopher(Game):
                 if enemy == 1 and friendly == 0:
                     res.append(move)
 
-        if len(res) == 0:
-            self.final_state = True
-
         return res
 
     def play(self, action: ActionGopher):
@@ -231,6 +221,11 @@ class GameGopher(Game):
 
     def score(self) -> Score:
         return -1 if self.player == R else 1
+    
+    def heuristic_evaluation(self) -> Score:
+        # j'en ai pas le moindre idée mdr
+        return 0
+
 
 
 class GameDodo(Game):
@@ -294,9 +289,6 @@ class GameDodo(Game):
                 if self.state[possible_move] == EMPTY:
                     res.append((hexagon, possible_move))
 
-        if len(res) == 0:
-            self.final_state = True
-
         return res
 
     def play(self, action: ActionDodo):
@@ -329,11 +321,13 @@ class GameDodo(Game):
             self.blue_pawns.remove(action[1])
             self.blue_pawns.append(action[0])
 
-        if self.final_state:
-            self.final_state = False
-
     def score(self) -> Score:
         return 1 if self.player == R else -1
+    
+    def heuristic_evaluation(self) -> Score:
+        # return the mean of the height of the pawns on the board ?
+        return 0
+        
 
 
 # -------- Initlisation des plateaux de jeu --------

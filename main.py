@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Dodo"
     size = 5
-    nb_iteration = 1
+    nb_iteration = 10
     victoire_rouge = 0
     victoire_bleu = 0
 
@@ -42,5 +42,5 @@ if __name__ == "__main__":
     # ---- Affichage de fin de partie ----
     print("Victoire rouge : ", victoire_rouge)
     print("Victoire bleu : ", victoire_bleu)
-    print("Avantage rouge par rapport au bleu :", (victoire_rouge-victoire_bleu)/nb_iteration*100, "%")
-    env.plot()
+    print("Avantage rouge par rapport au bleu :", round((victoire_rouge-victoire_bleu)/nb_iteration*100), "%")
+    #env.plot()
