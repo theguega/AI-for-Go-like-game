@@ -88,13 +88,15 @@ class Game:
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
         if depth == 0:
             return None, self.heuristic_evaluation()
-        if self.final():
+        
+        leg = self.legals()
+        if len(leg) == 0:
             return None, self.score()
 
         if self.player == R:
             best_score = -float("inf")
             best_action = None
-            for action in self.legals():
+            for action in leg:
                 self.play(action)
                 _, score = self.alpha_beta(depth - 1, alpha, beta)
                 self.undo(action)
@@ -108,7 +110,7 @@ class Game:
         else:
             best_score = float("inf")
             best_action = None
-            for action in self.legals():
+            for action in leg:
                 self.play(action)
                 _, score = self.alpha_beta(depth - 1, alpha, beta)
                 self.undo(action)
