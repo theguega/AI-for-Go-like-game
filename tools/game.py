@@ -83,7 +83,7 @@ class Game:
         return random.choice(res)
     
     def strategy_alpha_beta(self) -> Action:
-        return self.alpha_beta(5, -float("inf"), float("inf"))[0]
+        return self.alpha_beta(7, -float("inf"), float("inf"))[0]
     
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
         if depth == 0:

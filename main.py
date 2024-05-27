@@ -7,7 +7,7 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Dodo"
+    name = "Gopher"
     size = 5
     nb_iteration = 10
     victoire_rouge = 0
@@ -25,8 +25,7 @@ if __name__ == "__main__":
                 action = env.strategy_alpha_beta()
             else:
                 action = env.strategy_random()
-            if action is not None:
-                env.play(action)
+            env.play(action)
         
         if env.score() == 1:
             victoire_rouge += 1
@@ -43,4 +42,5 @@ if __name__ == "__main__":
     print("Victoire rouge : ", victoire_rouge)
     print("Victoire bleu : ", victoire_bleu)
     print("Avantage rouge par rapport au bleu :", round((victoire_rouge-victoire_bleu)/nb_iteration*100), "%")
+    print("Taux de victoire rouge : ", round(victoire_rouge/nb_iteration*100), "%")
     #env.plot()
