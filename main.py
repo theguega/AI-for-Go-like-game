@@ -1,17 +1,20 @@
 import tools.game as gopher_dodo
 import cProfile
 import pstats
+import time
 
 if __name__ == "__main__":
     profiler = cProfile.Profile()
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Gopher"
-    size = 5
-    nb_iteration = 10
+    name = "Dodo"
+    size = 4
+    nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
+    start_time = time.time()
+
 
     for i in range(nb_iteration):
         if name == "Dodo":
@@ -20,11 +23,15 @@ if __name__ == "__main__":
             initial_state = gopher_dodo.new_gopher(size)
 
         env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
+        tour=0
         while not env.final():
             if env.player == gopher_dodo.R:
                 action = env.strategy_alpha_beta()
             else:
                 action = env.strategy_random()
+            intermediate_time = time.time()
+            print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
+            tour += 1
             env.play(action)
         
         if env.score() == 1:
@@ -37,6 +44,8 @@ if __name__ == "__main__":
     profiler.disable()
     stats = pstats.Stats(profiler).sort_stats("tottime")
     stats.print_stats()
+    end_time = time.time()
+    print("Temps d'exécution : ", end_time - start_time, "s")
 
     # ---- Affichage de fin de partie ----
     print("Victoire rouge : ", victoire_rouge)
