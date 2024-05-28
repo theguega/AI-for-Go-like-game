@@ -3,6 +3,7 @@ from tools.hexagons import *
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import random
+import time
 
 Cell = Hex
 ActionGopher = Cell
@@ -73,6 +74,15 @@ class Game:
         size = 1.9 * self.hex_size
         plt.xlim(-size, size)
         plt.ylim(-size, size)
+        
+
+    def tmp_show(self):
+        self.plot()
+        plt.pause(1)
+        plt.close()
+
+    def final_show(self):
+        self.plot()
         plt.show()
 
     def final(self) -> bool:
