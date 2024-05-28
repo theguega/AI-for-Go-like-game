@@ -25,7 +25,7 @@ if __name__ == "__main__":
         tour = 0
         while not env.final():
             if env.player == gopher_dodo.R:
-                action = env.strategy_alpha_beta()
+                action = env.monte_carlo(100)
             else:
                 action = env.strategy_random()
             intermediate_time = time.time()
@@ -33,7 +33,7 @@ if __name__ == "__main__":
             # print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
             tour += 1
             env.play(action)
-        env.tmp_show()
+        #env.tmp_show()
 
         if env.score() == 100:
             victoire_rouge += 1
