@@ -3,7 +3,6 @@ from tools.hexagons import *
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import random
-import time
 
 Cell = Hex
 ActionGopher = Cell
