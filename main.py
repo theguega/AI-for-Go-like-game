@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Dodo"
     size = 4
-    nb_iteration = 1
+    nb_iteration = 10
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -33,7 +33,7 @@ if __name__ == "__main__":
             print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
             tour += 1
             env.play(action)
-            env.tmp_show()
+            #env.tmp_show()
         
         if env.score() == 1:
             victoire_rouge += 1
