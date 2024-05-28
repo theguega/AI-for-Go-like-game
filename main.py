@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Dodo"
     size = 4
-    nb_iteration = 100
+    nb_iteration = 1
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()

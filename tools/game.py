@@ -83,13 +83,15 @@ class Game:
         return random.choice(res)
     
     def strategy_alpha_beta(self) -> Action:
-        return self.alpha_beta(5, -float("inf"), float("inf"))[0]
+        return self.alpha_beta(6, -float("inf"), float("inf"))[0]
     
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
-        if depth == 0:
-            return None, self.heuristic_evaluation()
-        
+        #recuperation des coups possibles
         leg = self.legals()
+
+        if depth == 0:
+            return None, self.heuristic_evaluation(leg)
+        
         if len(leg) == 0:
             return None, self.score()
 
@@ -222,7 +224,7 @@ class GameGopher(Game):
             del self.blue_pawns[action]
 
     def score(self) -> Score:
-        return -1 if self.player == R else 1
+        return -10 if self.player == R else 10
     
     def heuristic_evaluation(self) -> Score:
         # j'en ai pas le moindre idée mdr
@@ -326,9 +328,26 @@ class GameDodo(Game):
     def score(self) -> Score:
         return 1 if self.player == R else -1
     
-    def heuristic_evaluation(self) -> Score:
-        # return the mean of the height of the pawns on the board ?
-        return 0
+    def heuristic_evaluation(self, legals) -> Score:
+        #less legals moves is better
+        if self.player == R:
+            score1 = -len(legals)/len(self.red_pawns)
+        else:
+            score1 = len(legals)/len(self.blue_pawns)
+        #print("--------------------")
+        #print("player :", self.player)
+        #print("score depending on the number of legals moves : ", score1)
+
+        #mean of the height of the pawns
+        if self.player == R:
+            score2 = sum([pawn.r for pawn in self.red_pawns])/len(self.red_pawns)
+        else:
+            score2 = -sum([pawn.r for pawn in self.blue_pawns])/len(self.blue_pawns)
+        
+        #print("score depending on the mean of the height of the pawns : ", score2)
+
+        #print("final score : ", score1 + score2)
+        return score1 + score2
         
 
 
