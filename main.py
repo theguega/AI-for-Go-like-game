@@ -8,9 +8,9 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Dodo"
-    size = 4
-    nb_iteration = 10
+    name = "Gopher"
+    size = 5
+    nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -30,14 +30,15 @@ if __name__ == "__main__":
             else:
                 action = env.strategy_random()
             intermediate_time = time.time()
-            print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
+            
+            #print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
             tour += 1
             env.play(action)
-            #env.tmp_show()
+        env.tmp_show()
         
-        if env.score() == 1:
+        if env.score() == 100:
             victoire_rouge += 1
-        elif env.score() == -1:
+        elif env.score() == -100:
             victoire_bleu += 1
 
     # ---- Affichage du profilage ----

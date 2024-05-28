@@ -99,11 +99,11 @@ class Game:
         #recuperation des coups possibles
         leg = self.legals()
 
-        if depth == 0:
-            return None, self.heuristic_evaluation(leg)
-        
         if len(leg) == 0:
             return None, self.score()
+
+        if depth == 0:
+            return None, self.heuristic_evaluation(leg)
 
         if self.player == R:
             best_score = -float("inf")
@@ -135,6 +135,13 @@ class Game:
             return best_action, best_score
 
 Environment = Game
+
+
+
+
+
+
+
 
 
 class GameGopher(Game):
@@ -234,11 +241,20 @@ class GameGopher(Game):
             del self.blue_pawns[action]
 
     def score(self) -> Score:
-        return -10 if self.player == R else 10
+        return -100 if self.player == R else 100
     
-    def heuristic_evaluation(self) -> Score:
-        # j'en ai pas le moindre idée mdr
-        return 0
+    def heuristic_evaluation(self, leg) -> Score:
+        if self.player == R:
+            return len(self.red_pawns)/len(leg)
+        else:
+            return -len(self.blue_pawns)/len(leg)
+
+
+
+
+
+
+
 
 
 
@@ -336,32 +352,31 @@ class GameDodo(Game):
             self.blue_pawns.append(action[0])
 
     def score(self) -> Score:
-        return 1 if self.player == R else -1
+        return 100 if self.player == R else -100
     
     def heuristic_evaluation(self, legals) -> Score:
         #less legals moves is better
         if self.player == R:
-            score1 = -len(legals)/len(self.red_pawns)
+            score1 = (len(self.red_pawns)*3)/len(legals)
         else:
-            score1 = len(legals)/len(self.blue_pawns)
-        #print("--------------------")
-        #print("player :", self.player)
-        #print("score depending on the number of legals moves : ", score1)
+            score1 = -(len(self.blue_pawns)*3)/len(legals)
 
         #mean of the height of the pawns
         if self.player == R:
             score2 = sum([pawn.r for pawn in self.red_pawns])/len(self.red_pawns)
         else:
-            score2 = -sum([pawn.r for pawn in self.blue_pawns])/len(self.blue_pawns)
-        
-        #print("score depending on the mean of the height of the pawns : ", score2)
-
-        #print("final score : ", score1 + score2)
+            score2 = sum([pawn.r for pawn in self.blue_pawns])/len(self.blue_pawns)
         return score1 + score2
         
 
 
+
+
+
 # -------- Initlisation des plateaux de jeu --------
+
+
+
 
 
 def new_dodo(h: int) -> State:
