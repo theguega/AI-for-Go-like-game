@@ -25,7 +25,7 @@ Neighbors = dict[Hex, list[Hex]]
 class Game:
     def __init__(
         self,
-        game : str,
+        game: str,
         state: State,
         player: Player,
         hex_size: int,
@@ -36,7 +36,7 @@ class Game:
         if hex_size < 1:
             raise ValueError("hex_size must be >= 1")
 
-        self.game : str=game
+        self.game: str = game
         self.state: State = state
         self.player: Player = player
         self.hex_size: int = hex_size
@@ -74,7 +74,6 @@ class Game:
         size = 1.9 * self.hex_size
         plt.xlim(-size, size)
         plt.ylim(-size, size)
-        
 
     def tmp_show(self):
         self.plot()
@@ -91,12 +90,12 @@ class Game:
     def strategy_random(self) -> Action:
         res = self.legals()
         return random.choice(res)
-    
+
     def strategy_alpha_beta(self) -> Action:
         return self.alpha_beta(6, -float("inf"), float("inf"))[0]
-    
+
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
-        #recuperation des coups possibles
+        # recuperation des coups possibles
         leg = self.legals()
 
         if len(leg) == 0:
@@ -134,14 +133,8 @@ class Game:
                     break
             return best_action, best_score
 
+
 Environment = Game
-
-
-
-
-
-
-
 
 
 class GameGopher(Game):
@@ -174,7 +167,7 @@ class GameGopher(Game):
 
         for hexagon, _ in state.items():
             self.neighbors[hexagon] = []
-            
+
             for n in neighbor_gopher:
                 neighbor = Hex(hexagon.q + n.q, hexagon.r + n.r, hexagon.s + n.s)
                 if neighbor in state:
@@ -192,13 +185,13 @@ class GameGopher(Game):
                 res.append(hexagon)
             return res
 
-        #else, we we can place a pawn on a cell that has exactly one enemy connection and no friendly connections
+        # else, we we can place a pawn on a cell that has exactly one enemy connection and no friendly connections
         # O(nb_paws) = O(nb_paws)
         for hexagon, _ in (
             self.red_pawns.items() if self.player == B else self.blue_pawns.items()
-        ):  
+        ):
             # O(6) = O(1)
-            moves : list[Cell] = []
+            moves: list[Cell] = []
             for neighbor in self.neighbors[hexagon]:
                 if self.state[neighbor] == EMPTY:
                     moves.append(neighbor)
@@ -231,10 +224,10 @@ class GameGopher(Game):
     def undo(self, action: ActionGopher):
         self.player = 3 - self.player  # repassage au joueur précédent
 
-        #update party state
+        # update party state
         self.state[action] = EMPTY
 
-        #update pawns
+        # update pawns
         if self.player == R:
             del self.red_pawns[action]
         else:
@@ -242,20 +235,12 @@ class GameGopher(Game):
 
     def score(self) -> Score:
         return -100 if self.player == R else 100
-    
+
     def heuristic_evaluation(self, leg) -> Score:
         if self.player == R:
-            return len(self.red_pawns)/len(leg)
+            return len(self.red_pawns) / len(leg)
         else:
-            return -len(self.blue_pawns)/len(leg)
-
-
-
-
-
-
-
-
+            return -len(self.blue_pawns) / len(leg)
 
 
 class GameDodo(Game):
@@ -266,12 +251,12 @@ class GameDodo(Game):
         player: Player,
         hex_size: int,
         total_time: Time,
-    ):  
+    ):
         # initialisation de la classe mère
         super().__init__(game, state, player, hex_size, total_time)
 
         # initialisation des pions
-        self.red_pawns: list[Cell] =[]
+        self.red_pawns: list[Cell] = []
         self.blue_pawns: list[Cell] = []
         for hexagon, play in state.items():
             if play == R:
@@ -279,7 +264,7 @@ class GameDodo(Game):
             elif play == B:
                 self.blue_pawns.append(hexagon)
 
-        #initilisations de tous les voisins
+        # initilisations de tous les voisins
         forward_blue = [
             axial_to_cube(DoubledCoord(-1, 0)),
             axial_to_cube(DoubledCoord(-1, -1)),
@@ -297,13 +282,17 @@ class GameDodo(Game):
         for hexagon, _ in state.items():
             self.red_forward[hexagon] = []
             self.blue_forward[hexagon] = []
-            
+
             for n_red in forward_red:
-                neighbor_red = Hex(hexagon.q + n_red.q, hexagon.r + n_red.r, hexagon.s + n_red.s)
+                neighbor_red = Hex(
+                    hexagon.q + n_red.q, hexagon.r + n_red.r, hexagon.s + n_red.s
+                )
                 if neighbor_red in state:
                     self.red_forward[hexagon].append(neighbor_red)
             for n_blue in forward_blue:
-                neighbor_blue = Hex(hexagon.q + n_blue.q, hexagon.r + n_blue.r, hexagon.s + n_blue.s)
+                neighbor_blue = Hex(
+                    hexagon.q + n_blue.q, hexagon.r + n_blue.r, hexagon.s + n_blue.s
+                )
                 if neighbor_blue in state:
                     self.blue_forward[hexagon].append(neighbor_blue)
 
@@ -314,8 +303,12 @@ class GameDodo(Game):
         res: list[ActionDodo] = []
 
         # O(nb_paws*3) = O(nb_paws)
-        for hexagon in (self.red_pawns if self.player == R else self.blue_pawns):
-            for possible_move in self.red_forward[hexagon] if self.player == R else self.blue_forward[hexagon]:
+        for hexagon in self.red_pawns if self.player == R else self.blue_pawns:
+            for possible_move in (
+                self.red_forward[hexagon]
+                if self.player == R
+                else self.blue_forward[hexagon]
+            ):
                 if self.state[possible_move] == EMPTY:
                     res.append((hexagon, possible_move))
 
@@ -339,11 +332,11 @@ class GameDodo(Game):
     def undo(self, action: ActionDodo):
         self.player = 3 - self.player  # repassage au joueur précédent
 
-        #update party state
+        # update party state
         self.state[action[0]] = self.player
         self.state[action[1]] = EMPTY
 
-        #update pawns
+        # update pawns
         if self.player == R:
             self.red_pawns.remove(action[1])
             self.red_pawns.append(action[0])
@@ -353,30 +346,23 @@ class GameDodo(Game):
 
     def score(self) -> Score:
         return 100 if self.player == R else -100
-    
+
     def heuristic_evaluation(self, legals) -> Score:
-        #less legals moves is better
+        # less legals moves is better
         if self.player == R:
-            score1 = (len(self.red_pawns)*3)/len(legals)
+            score1 = (len(self.red_pawns) * 3) / len(legals)
         else:
-            score1 = -(len(self.blue_pawns)*3)/len(legals)
+            score1 = -(len(self.blue_pawns) * 3) / len(legals)
 
-        #mean of the height of the pawns
+        # mean of the height of the pawns
         if self.player == R:
-            score2 = sum([pawn.r for pawn in self.red_pawns])/len(self.red_pawns)
+            score2 = sum([pawn.r for pawn in self.red_pawns]) / len(self.red_pawns)
         else:
-            score2 = sum([pawn.r for pawn in self.blue_pawns])/len(self.blue_pawns)
+            score2 = sum([pawn.r for pawn in self.blue_pawns]) / len(self.blue_pawns)
         return score1 + score2
-        
-
-
-
 
 
 # -------- Initlisation des plateaux de jeu --------
-
-
-
 
 
 def new_dodo(h: int) -> State:

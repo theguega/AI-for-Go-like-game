@@ -15,7 +15,6 @@ if __name__ == "__main__":
     victoire_bleu = 0
     start_time = time.time()
 
-
     for i in range(nb_iteration):
         if name == "Dodo":
             initial_state = gopher_dodo.new_dodo(size)
@@ -23,19 +22,19 @@ if __name__ == "__main__":
             initial_state = gopher_dodo.new_gopher(size)
 
         env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
-        tour=0
+        tour = 0
         while not env.final():
             if env.player == gopher_dodo.R:
                 action = env.strategy_alpha_beta()
             else:
                 action = env.strategy_random()
             intermediate_time = time.time()
-            
-            #print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
+
+            # print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
             tour += 1
             env.play(action)
         env.tmp_show()
-        
+
         if env.score() == 100:
             victoire_rouge += 1
         elif env.score() == -100:
@@ -52,6 +51,10 @@ if __name__ == "__main__":
     # ---- Affichage de fin de partie ----
     print("Victoire rouge : ", victoire_rouge)
     print("Victoire bleu : ", victoire_bleu)
-    print("Avantage rouge par rapport au bleu :", round((victoire_rouge-victoire_bleu)/nb_iteration*100), "%")
-    print("Taux de victoire rouge : ", round(victoire_rouge/nb_iteration*100), "%")
+    print(
+        "Avantage rouge par rapport au bleu :",
+        round((victoire_rouge - victoire_bleu) / nb_iteration * 100),
+        "%",
+    )
+    print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
     env.final_show()
