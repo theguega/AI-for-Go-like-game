@@ -3,6 +3,7 @@ from tools.hexagons import *
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import random
+import copy
 
 Cell = Hex
 ActionGopher = Cell
@@ -132,6 +133,37 @@ class Game:
                     break
             return best_action, best_score
 
+    def monte_carlo(self,nb_iter:int) -> Action:
+        legals = self.legals()
+        max:int = 0
+        best_action : Action = None
+        tmp_env = None
+        for action in legals:
+            gain:int = 0
+            victoire_rouge : int = 0
+            victoire_bleu: int = 0
+            tmp_env = copy.deepcopy(self)
+            tmp_env.play(action)
+            for i in range(nb_iter):
+                while not tmp_env.final():
+                    tmp_action = tmp_env.strategy_random()
+                    tmp_env.play(tmp_action)
+                if tmp_env.score() == 100:
+                    victoire_rouge += 1
+                elif tmp_env.score() == -100:
+                    victoire_bleu += 1
+                tmp_env = copy.deepcopy(self)
+            if self.player == R:
+                gain = victoire_rouge / nb_iter
+            else:
+                gain = victoire_bleu / nb_iter
+
+            if gain > max:
+                max = gain
+                best_action = action
+        print(max,best_action)
+        return best_action
+
 
 Environment = Game
 
@@ -191,6 +223,7 @@ class GameGopher(Game):
         ):
             # O(6) = O(1)
             moves: list[Cell] = []
+
             for neighbor in self.neighbors[hexagon]:
                 if self.state[neighbor] == EMPTY:
                     moves.append(neighbor)
@@ -359,6 +392,8 @@ class GameDodo(Game):
         else:
             score2 = sum([pawn.r for pawn in self.blue_pawns]) / len(self.blue_pawns)
         return score1 + score2
+
+
 
 
 # -------- Initlisation des plateaux de jeu --------
