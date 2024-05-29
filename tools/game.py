@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import random
 import copy
+from collections import deque
 
 Cell = Hex
 ActionGopher = Cell
@@ -138,21 +139,25 @@ class Game:
         max:int = 0
         best_action : Action = None
         tmp_env = None
+        stack:deque = deque()
         for action in legals:
             gain:int = 0
             victoire_rouge : int = 0
             victoire_bleu: int = 0
-            tmp_env = copy.deepcopy(self)
-            tmp_env.play(action)
+            stack.append(action)
+            self.play(action)
             for i in range(nb_iter):
-                while not tmp_env.final():
-                    tmp_action = tmp_env.strategy_random()
-                    tmp_env.play(tmp_action)
-                if tmp_env.score() == 100:
+                while not self.final():
+                    tmp_action = self.strategy_random()
+                    stack.append(tmp_action)
+                    self.play(tmp_action)
+                if self.score() == 100:
                     victoire_rouge += 1
-                elif tmp_env.score() == -100:
+                elif self.score() == -100:
                     victoire_bleu += 1
-                tmp_env = copy.deepcopy(self)
+                while len(stack)>1:
+                    self.undo(stack.pop())
+            self.undo(stack.pop())
             if self.player == R:
                 gain = victoire_rouge / nb_iter
             else:
@@ -161,7 +166,6 @@ class Game:
             if gain > max:
                 max = gain
                 best_action = action
-        print(max,best_action)
         return best_action
 
 
