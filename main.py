@@ -16,6 +16,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     for i in range(nb_iteration):
+        print("Simulation :",i)
         if name == "Dodo":
             initial_state = gopher_dodo.new_dodo(size)
         elif name == "Gopher":
