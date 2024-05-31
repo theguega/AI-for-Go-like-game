@@ -1,0 +1,13 @@
+Taille de la grille : 5
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Random
+Stratégie du joueur bleu : Monte Carlo
+Victoire rouge : 0
+Victoire bleu : 10
+Taux de victoire rouge : 0%
+Temps d'exécution : 16.15157389640808s
+
+
+
+
+
