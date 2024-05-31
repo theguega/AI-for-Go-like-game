@@ -147,7 +147,7 @@ class Game:
             victoire_bleu: int = 0
             stack.append(action)
             self.play(action)
-            for i in range(nb_iter):
+            for i in range(nb_iter//len(legals)):
                 while not self.final():
                     tmp_action = self.strategy_random()
                     stack.append(tmp_action)
@@ -274,7 +274,7 @@ class GameGopher(Game):
             del self.blue_pawns[action]
 
     def score(self) -> Score:
-        return -1 if self.player == R else 1
+        return -100 if self.player == R else 100
 
     def heuristic_evaluation(self, leg) -> Score:
         if self.player == R:
@@ -385,7 +385,7 @@ class GameDodo(Game):
             self.blue_pawns.append(action[0])
 
     def score(self) -> Score:
-        return 1 if self.player == R else -1
+        return 100 if self.player == R else -100
 
     def heuristic_evaluation(self, legals) -> Score:
         # less legals moves is better
