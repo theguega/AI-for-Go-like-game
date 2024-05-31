@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Gopher"
     size = 5
-    nb_iteration = 10
+    nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -27,7 +27,7 @@ if __name__ == "__main__":
             if env.player == gopher_dodo.R:
                 action = env.strategy_random()
             else:
-                action = env.monte_carlo(15)
+                action = env.monte_carlo(1000)
             intermediate_time = time.time()
 
             print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
@@ -60,11 +60,11 @@ if __name__ == "__main__":
     env.final_show() #affichage de la dernière grille finale
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = False
+    export = True
 
     if export:
         strat_rouge : str = "Random"
-        strat_bleu : str = "Monte Carlo"
+        strat_bleu : str = "Monte Carlo : 100 simu"
         if name == "Dodo":
             path = "docu/simulations_dodo.txt"
         elif name == "Gopher":
