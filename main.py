@@ -61,7 +61,7 @@ if __name__ == "__main__":
     env.final_show() #affichage de la dernière grille finale
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = True
+    export = False
 
     if export:
         strat_rouge : str = "Random"
