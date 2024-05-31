@@ -5,6 +5,7 @@ from matplotlib.patches import Polygon
 import random
 import copy
 from collections import deque
+from tools.mcts import *
 
 Cell = Hex
 ActionGopher = Cell
@@ -168,6 +169,9 @@ class Game:
                 best_action = action
         return best_action
 
+    def strategy_mcts(self,nb_simu:int) -> Action:
+        root = MCTSNode(self)
+        return root.best_action(nb_simu=nb_simu).parent_action
 
 Environment = Game
 
@@ -270,7 +274,7 @@ class GameGopher(Game):
             del self.blue_pawns[action]
 
     def score(self) -> Score:
-        return -100 if self.player == R else 100
+        return -1 if self.player == R else 1
 
     def heuristic_evaluation(self, leg) -> Score:
         if self.player == R:
@@ -381,7 +385,7 @@ class GameDodo(Game):
             self.blue_pawns.append(action[0])
 
     def score(self) -> Score:
-        return 100 if self.player == R else -100
+        return 1 if self.player == R else -1
 
     def heuristic_evaluation(self, legals) -> Score:
         # less legals moves is better
