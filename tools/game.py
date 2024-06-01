@@ -5,7 +5,9 @@ from matplotlib.patches import Polygon
 import random
 import copy
 from collections import deque
+import numpy as np
 from tools.mcts import *
+from tools.mcts import MCTSNode
 
 Cell = Hex
 ActionGopher = Cell
@@ -147,7 +149,7 @@ class Game:
             victoire_bleu: int = 0
             stack.append(action)
             self.play(action)
-            for i in range(nb_iter//len(legals)):
+            for i in range(nb_iter//len(legals) + 1):
                 while not self.final():
                     tmp_action = self.strategy_random()
                     stack.append(tmp_action)
@@ -169,9 +171,11 @@ class Game:
                 best_action = action
         return best_action
 
-    def strategy_mcts(self,nb_simu:int) -> Action:
-        root = MCTSNode(self)
-        return root.best_action(nb_simu=nb_simu).parent_action
+    def strategy_mcts(self,nb_simu:int,root: MCTSNode=None) -> Action:
+        if not root:
+            root = MCTSNode(self)
+        root = root.best_action(nb_simu=nb_simu)
+        return root.parent_action,root
 
 Environment = Game
 
