@@ -19,8 +19,8 @@ Neighbors = dict[Hex, list[Hex]]
 
 
 class MCTSNode:
-    def __init__(self, env, parent=None, parent_action=None):
-        self.env: Game = env
+    def __init__(self, leg, parent=None, parent_action=None):
+        #self.env: Game = env
         self.parent: MCTSNode = parent
         self.parent_action = parent_action
         self.children : list[MCTSNode] = []
@@ -29,7 +29,7 @@ class MCTSNode:
         self._wins: int = 0
         self._loses: int  = 0
         self._untried_actions : list[Action] = None
-        self._untried_actions = env.legals()
+        self._untried_actions = leg
         return
 
     def q(self) -> int:
@@ -38,27 +38,28 @@ class MCTSNode:
     def n(self) -> int:
         return self._number_of_visits
 
-    def expand(self):
+    def expand(self,env):
         action = self._untried_actions.pop()
-        self.env.play(action)
-        child_node = MCTSNode(deepcopy(self.env), parent=self, parent_action=action)
-        self.env.undo(action)
+        env.play(action)
+        leg = env.legals()
+        child_node = MCTSNode(leg, parent=self, parent_action=action)
+        env.undo(action)
         self.children.append(child_node)
         return child_node
 
-    def is_terminal_node(self) -> bool:
-        return self.env.final()
+    def is_terminal_node(self,env) -> bool:
+        return env.final()
 
-    def rollout(self) -> int :
+    def rollout(self,env) -> int :
         stack : deque = deque()
-        while not self.env.final():
-            action = self.env.strategy_random()
+        while not env.final():
+            action = env.strategy_random()
             stack.append(action)
-            self.env.play(action)
+            env.play(action)
 
-        score : int = self.env.score()
+        score : int = env.score()
         while len(stack)>0:
-            self.env.undo(stack.pop())
+            env.undo(stack.pop())
         return score
 
 
@@ -80,23 +81,30 @@ class MCTSNode:
         choices_weights = [(c.q() / c.n()) + c_param * np.sqrt((np.log(self.n()) / c.n())) for c in self.children]
         return self.children[np.argmax(choices_weights)]
 
-    def _tree_policy(self):
+    def _tree_policy(self,env):
 
+        stack : deque = deque()
         current_node = self
-        while not current_node.is_terminal_node():
+        while not current_node.is_terminal_node(env):
 
             if not current_node.is_fully_expanded():
-                return current_node.expand()
+                return current_node.expand(env),stack
             else:
                 current_node = current_node.best_child()
-        return current_node
+                stack.append(current_node.parent_action)
+                env.play(current_node.parent_action)
+
+        return current_node,stack
 
 
-    def best_action(self,nb_simu=1000):
+    def best_action(self,env,nb_simu=1000):
         for i in range(nb_simu):
-            v = self._tree_policy()
-            reward = v.rollout()
+            v,stack = self._tree_policy(env)
+            reward = v.rollout(env)
+            while len(stack)>0:
+                env.undo(stack.pop())
             v.backpropagate(reward)
+
 
         return self.best_child()
 

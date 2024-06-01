@@ -173,8 +173,8 @@ class Game:
 
     def strategy_mcts(self,nb_simu:int,root: MCTSNode=None) -> Action:
         if not root:
-            root = MCTSNode(self)
-        root = root.best_action(nb_simu=nb_simu)
+            root = MCTSNode(self.legals())
+        root = root.best_action(self,nb_simu=nb_simu)
         return root.parent_action,root
 
 Environment = Game

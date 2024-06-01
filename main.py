@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # ---- Boucle de jeu ----
     name = "Gopher"
-    size = 5
+    size = 7
     nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
@@ -35,7 +35,7 @@ if __name__ == "__main__":
                         if child.parent_action == action:
                             root = child
             else:
-                action,root = env.strategy_mcts(100,root=root)
+                action,root = env.strategy_mcts(1000,root=root)
 
 
             #print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
