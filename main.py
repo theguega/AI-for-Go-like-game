@@ -11,11 +11,10 @@ if __name__ == "__main__":
 
     # ---- Boucle de jeu ----
     name = "Gopher"
-    size = 7
-    nb_iteration = 100
+    size = 5
+    nb_iteration = 1
     victoire_rouge = 0
     victoire_bleu = 0
-    c_param = [0.1, 0.5, 1, np.sqrt(2), 2,5]
     for i in range(nb_iteration):
         start_time = time.time()
         print(f"Iteration {i}/{nb_iteration}")
@@ -35,15 +34,15 @@ if __name__ == "__main__":
                         if child.parent_action == action:
                             root = child
             else:
-                action,root = env.strategy_mcts(1000,root=root)
+                action,root = env.strategy_mcts(5,root=root)
 
 
             #print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
-            #print("Joueur", env.player, "Action", action, "")
             tour += 1
             env.play(action)
+            print("Joueur", 3-env.player,"Tour",tour, "Action", action, "")
 
-        env.final_show()
+            env.tmp_show()
 
         if env.score() == 100:
             victoire_rouge += 1
@@ -73,3 +72,6 @@ if __name__ == "__main__":
     )
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
     #env.final_show()
+
+# Bleus: 2645- 2173 = 472
+# Rouge: 2635 - 2165 = 470

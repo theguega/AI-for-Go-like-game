@@ -92,7 +92,7 @@ class Game:
         return not self.legals()
 
     def strategy_random(self) -> Action:
-        res = self.legals()
+        res: list[Action] = self.legals()
         return random.choice(res)
 
     def strategy_alpha_beta(self) -> Action:
@@ -100,7 +100,7 @@ class Game:
 
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
         # recuperation des coups possibles
-        leg = self.legals()
+        leg: list[Action] = self.legals()
 
         if len(leg) == 0:
             return None, self.score()
@@ -109,11 +109,11 @@ class Game:
             return None, self.heuristic_evaluation(leg)
 
         if self.player == R:
-            best_score = -float("inf")
-            best_action = None
+            best_score: float = -float("inf")
+            best_action: Action = None
             for action in leg:
                 self.play(action)
-                _, score = self.alpha_beta(depth - 1, alpha, beta)
+                _, score= self.alpha_beta(depth - 1, alpha, beta)
                 self.undo(action)
                 if score > best_score:
                     best_score = score
@@ -123,8 +123,8 @@ class Game:
                     break
             return best_action, best_score
         else:
-            best_score = float("inf")
-            best_action = None
+            best_score: float = float("inf")
+            best_action: Action = None
             for action in leg:
                 self.play(action)
                 _, score = self.alpha_beta(depth - 1, alpha, beta)
@@ -138,10 +138,9 @@ class Game:
             return best_action, best_score
 
     def monte_carlo(self,nb_iter:int) -> Action:
-        legals = self.legals()
-        max:int = 0
+        legals: List[Action] = self.legals()
+        max: int = 0
         best_action : Action = None
-        tmp_env = None
         stack:deque = deque()
         for action in legals:
             gain:int = 0
@@ -151,7 +150,7 @@ class Game:
             self.play(action)
             for i in range(nb_iter//len(legals) + 1):
                 while not self.final():
-                    tmp_action = self.strategy_random()
+                    tmp_action: Action = self.strategy_random()
                     stack.append(tmp_action)
                     self.play(tmp_action)
                 if self.score() == 100:
@@ -173,7 +172,7 @@ class Game:
 
     def strategy_mcts(self,nb_simu:int,root: MCTSNode=None) -> Action:
         if not root:
-            root = MCTSNode(self.legals())
+            root: MCTSNode  = MCTSNode(self.legals(),self.player)
         root = root.best_action(self,nb_simu=nb_simu)
         return root.parent_action,root
 
@@ -254,6 +253,7 @@ class GameGopher(Game):
         return res
 
     def play(self, action: ActionGopher):
+        print("J",self.player,"play :",action)
         # update party state
         self.state[action] = self.player
 
@@ -266,6 +266,7 @@ class GameGopher(Game):
         self.player = 3 - self.player  # changement de joueur
 
     def undo(self, action: ActionGopher):
+        print("J",3-self.player,"Undo :",action)
         self.player = 3 - self.player  # repassage au joueur précédent
 
         # update party state
