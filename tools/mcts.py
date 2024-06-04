@@ -40,12 +40,10 @@ class MCTSNode:
 
     def expand(self,env):
         action : Action= self._untried_actions.pop()
-        print("Expanding")
         env.play(action)
         leg: list[Action] = env.legals()
         child_node = MCTSNode(leg,self.associated_player, parent=self, parent_action=action)
         env.undo(action)
-        print("End Expanding")
         self.children.append(child_node)
         return child_node
 
@@ -54,7 +52,6 @@ class MCTSNode:
 
     def rollout(self,env) -> int :
         stack : deque = deque()
-        print("Rollouting")
         while not env.final():
             action : Action = env.strategy_random()
             stack.append(action)
@@ -63,7 +60,6 @@ class MCTSNode:
         score : int = env.score()
         while len(stack)>0:
             env.undo(stack.pop())
-        print("End Rollouting")
         return score
 
 
@@ -95,7 +91,6 @@ class MCTSNode:
 
         stack : deque[Action] = deque()
         current_node : MCTSNode = self
-        print("Policy")
         while not current_node.is_terminal_node(env):
 
             if not current_node.is_fully_expanded():
@@ -117,7 +112,6 @@ class MCTSNode:
             reward = nd.rollout(env)
             while len(stack)>0:
                 env.undo(stack.pop())
-            print("End policy")
             nd.backpropagate(reward)
 
 

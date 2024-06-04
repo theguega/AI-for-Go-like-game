@@ -253,7 +253,6 @@ class GameGopher(Game):
         return res
 
     def play(self, action: ActionGopher):
-        print("J",self.player,"play :",action)
         # update party state
         self.state[action] = self.player
 
@@ -266,7 +265,6 @@ class GameGopher(Game):
         self.player = 3 - self.player  # changement de joueur
 
     def undo(self, action: ActionGopher):
-        print("J",3-self.player,"Undo :",action)
         self.player = 3 - self.player  # repassage au joueur précédent
 
         # update party state
