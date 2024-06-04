@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     # ---- Boucle de jeu ----
     name = "Gopher"
-    size = 5
+    size = 8
     nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
@@ -28,7 +28,7 @@ if __name__ == "__main__":
             if env.player == gopher_dodo.R:
                 action = env.strategy_random()
             else:
-                action = env.monte_carlo(1000)
+                action = env.monte_carlo(100)
             intermediate_time = time.time()
 
             print("Tour n°", tour, " : ", intermediate_time - start_time, "s")

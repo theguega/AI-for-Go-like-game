@@ -165,6 +165,9 @@ class Game:
             if gain > max:
                 max = gain
                 best_action = action
+        if best_action is None:
+            print("mizeuhfpaizyeaezpiyfbzepiucbvaezucbzerurcvbezrcouv\n\n\n")
+            env.show()
         return best_action
 
 
