@@ -12,12 +12,15 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Gopher"
     size = 8
-    nb_iteration = 1
+    nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
+    start_time = time.time()
+    mean_simu_time = 0
+
     for i in range(nb_iteration):
         print("Simulation :", i)
-        start_time = time.time()
+        start_time_simu = time.time()
         if name == "Dodo":
             initial_state = gopher_dodo.new_dodo(size)
         elif name == "Gopher":
@@ -28,6 +31,7 @@ if __name__ == "__main__":
         root: MCTSNode = None  # mcts root node
 
         while not env.final():
+            debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
                 action = env.strategy_mc(400)
                 # for the mcts, we need to update the root node
@@ -38,10 +42,12 @@ if __name__ == "__main__":
             else:
                 action, root = env.strategy_mcts(400, root=root)
 
-            intermediate_time = time.time()
-            print("Tour n°", tour, " : ", intermediate_time - start_time, "s")
+            fin_time_tour = time.time()
+            print("Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
+            mean_simu_time += fin_time_tour-debut_time_tour
             tour += 1
             env.play(action)
+        end_time_simu = time.time()
 
         if env.score() == 100:
             victoire_rouge += 1
@@ -49,8 +55,9 @@ if __name__ == "__main__":
             victoire_bleu += 1
 
         intermediate_time = time.time()
-        print(intermediate_time - start_time)
+        print("Temps de simulation : ", end_time_simu - start_time_simu, "s")
         print("Winner :", "rouge" if env.score() == 100 else "bleu")
+        mean_simu_time /= nb_iteration
     # ---- Affichage du profilage ----
 
     profiler.disable()
@@ -74,8 +81,8 @@ if __name__ == "__main__":
     export = False
 
     if export:
-        strat_rouge: str = "Random"
-        strat_bleu: str = "Monte Carlo : 100 simu"
+        strat_rouge: str = "Monte Carlo : 400 simu"
+        strat_bleu: str = "Monte Carlo Tree Search : 400 simu"
         if name == "Dodo":
             path = "docu/simulations_dodo.txt"
         elif name == "Gopher":
@@ -91,6 +98,7 @@ if __name__ == "__main__":
                 f"Victoire bleu : {victoire_bleu}\n"
                 f"Taux de victoire rouge : {round(victoire_rouge / nb_iteration * 100)}%\n"
                 f"Temps d'exécution : {end_time - start_time}s\n"
+                f"Temps moyen par simulation : {mean_simu_time}s\n"
                 f"\n\n\n\n\n"
             )
         file.close()
