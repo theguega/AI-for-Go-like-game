@@ -33,15 +33,15 @@ if __name__ == "__main__":
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
-                action, root = env.strategy_mcts(400, root=root)
-                #action = env.strategy_random()
-            else:
                 action = env.strategy_mc(400)
                 # for the mcts, we need to update the root node
                 if root:
                     for child in root.children:
                         if child.parent_action == action:
                             root = child
+                #action = env.strategy_random()
+            else:
+                action, root = env.strategy_mcts(400, root=root)
 
             fin_time_tour = time.time()
             print("Joueur :",env.player," | ", "Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
@@ -49,7 +49,6 @@ if __name__ == "__main__":
             tour += 1
             print("Action :", action)
             env.play(action)
-            print(env.red_pawns if env.player == gopher_dodo.B else env.blue_pawns)
             print()
         end_time_simu = time.time()
 
@@ -82,11 +81,11 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = False
+    export = True
 
     if export:
-        strat_rouge: str = "Monte Carlo Tree Search : 400 simu"
-        strat_bleu: str = "Monte Carlo : 400 simu"
+        strat_rouge: str = "Monte Carlo : 400 simu"
+        strat_bleu: str = "Monte Carlo Tree Search : 400 simu"
         if name == "Dodo":
             path = "docu/simulations_dodo.txt"
         elif name == "Gopher":

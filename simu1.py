@@ -82,7 +82,7 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = False
+    export = True
 
     if export:
         strat_rouge: str = "Monte Carlo Tree Search : 400 simu"
