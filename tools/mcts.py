@@ -84,7 +84,7 @@ class MCTSNode:
     def is_fully_expanded(self) -> bool:
         return len(self._untried_actions) == 0
 
-    def best_child(self, c_param=1.5):
+    def best_child(self, c_param=np.sqrt(2)):
 
         choices_weights = [
             (c.q() / c.n()) + c_param * np.sqrt((np.log(self.n()) / c.n()))
