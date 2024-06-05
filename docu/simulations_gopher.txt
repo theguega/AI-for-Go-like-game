@@ -11,3 +11,17 @@ Temps d'exécution : 16.15157389640808s
 
 
 
+Taille de la grille : 5
+Nombre d'itérations : 20
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Monte Carlo Tree Search : 400 simu
+Victoire rouge : 13
+Victoire bleu : 7
+Taux de victoire rouge : 65%
+Temps d'exécution : 301.57068514823914s
+Temps moyen par simulation : 0.8832900540149922s
+
+
+
+
+
