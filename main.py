@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # ---- Boucle de jeu ----
     name = "Gopher"
-    size = 5
+    size = 6
     nb_iteration = 20
     victoire_rouge = 0
     victoire_bleu = 0
