@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Gopher"
     size = 8
-    nb_iteration = 100
+    nb_iteration = 20
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = False
+    export = True
 
     if export:
         strat_rouge: str = "Monte Carlo : 400 simu"
