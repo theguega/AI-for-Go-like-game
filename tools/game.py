@@ -166,10 +166,12 @@ class Game:
                 gain = victoire_rouge / nb_iter
             else:
                 gain = victoire_bleu / nb_iter
-
+            print("gain : ", gain)
             if gain > max:
                 max = gain
                 best_action = action
+        print("final gain : ", gain)
+        print("max", max)
         return best_action
 
     def strategy_mcts(self, nb_simu: int, root: MCTSNode = None) -> Action:

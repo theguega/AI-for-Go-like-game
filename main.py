@@ -34,6 +34,7 @@ if __name__ == "__main__":
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
                 action, root = env.strategy_mcts(400, root=root)
+                #action = env.strategy_random()
             else:
                 action = env.strategy_mc(400)
                 # for the mcts, we need to update the root node
@@ -43,10 +44,13 @@ if __name__ == "__main__":
                             root = child
 
             fin_time_tour = time.time()
-            print("Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
+            print("Joueur :",env.player," | ", "Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
             mean_simu_time += fin_time_tour-debut_time_tour
             tour += 1
+            print("Action :", action)
             env.play(action)
+            print(env.red_pawns if env.player == gopher_dodo.B else env.blue_pawns)
+            print()
         end_time_simu = time.time()
 
         if env.score() == 100:
@@ -78,7 +82,7 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = True
+    export = False
 
     if export:
         strat_rouge: str = "Monte Carlo Tree Search : 400 simu"
@@ -103,4 +107,5 @@ if __name__ == "__main__":
             )
         file.close()
     else:
+        pass
         env.final_show()  # affichage de la dernière grille finale
