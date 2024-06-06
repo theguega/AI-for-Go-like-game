@@ -94,8 +94,8 @@ class Game:
         res: list[Action] = self.legals()
         return random.choice(res)
 
-    def strategy_alpha_beta(self) -> Action:
-        return self.alpha_beta(6, -float("inf"), float("inf"))[0]
+    def strategy_alpha_beta(self, max_depth = 5) -> Action:
+        return self.alpha_beta(max_depth, -float("inf"), float("inf"))[0]
 
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
         # recuperation des coups possibles

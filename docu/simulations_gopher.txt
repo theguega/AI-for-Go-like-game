@@ -1,30 +1,3 @@
-Taille de la grille : 5
-Nombre d'itérations : 10
-Stratégie du joueur rouge : Random
-Stratégie du joueur bleu : Monte Carlo
-Victoire rouge : 0
-Victoire bleu : 10
-Taux de victoire rouge : 0%
-Temps d'exécution : 16.15157389640808s
-
-
-
-
-
-Taille de la grille : 5
-Nombre d'itérations : 20
-Stratégie du joueur rouge : Monte Carlo : 400 simu
-Stratégie du joueur bleu : Monte Carlo Tree Search : 400 simu
-Victoire rouge : 13
-Victoire bleu : 7
-Taux de victoire rouge : 65%
-Temps d'exécution : 301.57068514823914s
-Temps moyen par simulation : 0.8832900540149922s
-
-
-
-
-
 Taille de la grille : 8
 Nombre d'itérations : 50
 Stratégie du joueur rouge : Monte Carlo Tree Search : 400 simu
@@ -34,6 +7,7 @@ Victoire bleu : 40
 Taux de victoire rouge : 20%
 Temps d'exécution : 24339.34821176529s
 Temps moyen par simulation : 10.496170881437976s
+
 
 
 
@@ -49,6 +23,20 @@ Taux de victoire rouge : 78%
 Temps d'exécution : 24512.827341794968s
 Temps moyen par simulation : 10.232484779394552s
 
+
+
+
+
+
+Taille de la grille : 5
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Monte Carlo Tree Search : 400 simu
+Victoire rouge : 7
+Victoire bleu : 43
+Taux de victoire rouge : 14%
+Temps d'exécution : 16.258106231689453s
+Temps moyen par simulation : 0.002974747156334935s
 
 
 

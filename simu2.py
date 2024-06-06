@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     # ---- Boucle de jeu ----
     name = "Gopher"
-    size = 8
+    size = 6
     nb_iteration = 50
     victoire_rouge = 0
     victoire_bleu = 0
@@ -28,26 +28,18 @@ if __name__ == "__main__":
 
         env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
         tour = 0
-        root: MCTSNode = None  # mcts root node
 
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
                 action = env.strategy_mc(400)
-                # for the mcts, we need to update the root node
-                if root:
-                    for child in root.children:
-                        if child.parent_action == action:
-                            root = child
-                #action = env.strategy_random()
             else:
-                action, root = env.strategy_mcts(400, root=root)
+                action = env.strategy_alpha_beta(9)
 
             fin_time_tour = time.time()
             print("Joueur :",env.player," | ", "Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
             mean_simu_time += fin_time_tour-debut_time_tour
             tour += 1
-            print("Action :", action)
             env.play(action)
             print()
         end_time_simu = time.time()
@@ -85,7 +77,7 @@ if __name__ == "__main__":
 
     if export:
         strat_rouge: str = "Monte Carlo : 400 simu"
-        strat_bleu: str = "Monte Carlo Tree Search : 400 simu"
+        strat_bleu: str = "Alpha Beta : 9 depth"
         if name == "Dodo":
             path = "docu/simulations_dodo.txt"
         elif name == "Gopher":
