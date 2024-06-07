@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Gopher"
     size = 6
-    nb_iteration = 10
+    nb_iteration = 50
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
-                action = env.strategy_alpha_beta(10)
+                action = env.strategy_alpha_beta(6)
             else:
                 action = env.strategy_mc(400)
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     export = True
 
     if export:
-        strat_rouge: str = "Alpha Beta : 10 depth"
+        strat_rouge: str = "Alpha Beta : 6 depth"
         strat_bleu: str = "Monte Carlo : 400 simu"
         if name == "Dodo":
             path = "docu/simulations_dodo.txt"

@@ -33,3 +33,423 @@ Temps moyen par simulation : 10.232484779394552s
 
 
 
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 4
+Victoire bleu : 6
+Taux de victoire rouge : 40%
+Temps d'exécution : 4566.045084953308s
+Temps moyen par simulation : 14.677926907027262s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 4
+Victoire bleu : 6
+Taux de victoire rouge : 40%
+Temps d'exécution : 4256.114439725876s
+Temps moyen par simulation : 42.1422168033224s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 36
+Victoire bleu : 14
+Taux de victoire rouge : 72%
+Temps d'exécution : 11810.580246448517s
+Temps moyen par simulation : 2.2886959184809132s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 0
+Victoire bleu : 10
+Taux de victoire rouge : 0%
+Temps d'exécution : 5516.279764890671s
+Temps moyen par simulation : 34.91599751601176s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 1
+Victoire bleu : 9
+Taux de victoire rouge : 10%
+Temps d'exécution : 6964.225250244141s
+Temps moyen par simulation : 14.807573309462033s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 38
+Victoire bleu : 12
+Taux de victoire rouge : 76%
+Temps d'exécution : 12803.516202688217s
+Temps moyen par simulation : 3.0670492683576502s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 5
+Victoire bleu : 5
+Taux de victoire rouge : 50%
+Temps d'exécution : 5064.136954545975s
+Temps moyen par simulation : 42.001070574959456s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 1
+Victoire bleu : 9
+Taux de victoire rouge : 10%
+Temps d'exécution : 5144.269095659256s
+Temps moyen par simulation : 101.74236649334705s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 35
+Victoire bleu : 15
+Taux de victoire rouge : 70%
+Temps d'exécution : 9201.685072898865s
+Temps moyen par simulation : 2.220740299663926s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 2
+Victoire bleu : 8
+Taux de victoire rouge : 20%
+Temps d'exécution : 3101.03994846344s
+Temps moyen par simulation : 61.73739894724535s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 3
+Victoire bleu : 7
+Taux de victoire rouge : 30%
+Temps d'exécution : 3047.669848918915s
+Temps moyen par simulation : 21.645135986529958s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 1
+Victoire bleu : 9
+Taux de victoire rouge : 10%
+Temps d'exécution : 4730.468074798584s
+Temps moyen par simulation : 111.61615944321034s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 30
+Victoire bleu : 20
+Taux de victoire rouge : 60%
+Temps d'exécution : 10840.069497585297s
+Temps moyen par simulation : 3.9610149699509987s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 3
+Victoire bleu : 7
+Taux de victoire rouge : 30%
+Temps d'exécution : 5369.119093179703s
+Temps moyen par simulation : 38.79621022840259s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 4
+Victoire bleu : 6
+Taux de victoire rouge : 40%
+Temps d'exécution : 4829.425324678421s
+Temps moyen par simulation : 21.547411146929257s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 1
+Victoire bleu : 9
+Taux de victoire rouge : 10%
+Temps d'exécution : 4019.353586435318s
+Temps moyen par simulation : 43.011092429989574s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 33
+Victoire bleu : 17
+Taux de victoire rouge : 66%
+Temps d'exécution : 12988.185604095459s
+Temps moyen par simulation : 3.595884833658267s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 0
+Victoire bleu : 10
+Taux de victoire rouge : 0%
+Temps d'exécution : 5580.236018657684s
+Temps moyen par simulation : 107.52311886791685s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 4
+Victoire bleu : 6
+Taux de victoire rouge : 40%
+Temps d'exécution : 5132.601610898972s
+Temps moyen par simulation : 47.957728350403755s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 36
+Victoire bleu : 14
+Taux de victoire rouge : 72%
+Temps d'exécution : 10490.92971086502s
+Temps moyen par simulation : 7.662152423795814s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 2
+Victoire bleu : 8
+Taux de victoire rouge : 20%
+Temps d'exécution : 6393.189218997955s
+Temps moyen par simulation : 22.25318749838495s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 4
+Victoire bleu : 6
+Taux de victoire rouge : 40%
+Temps d'exécution : 5145.69144320488s
+Temps moyen par simulation : 33.10150516946116s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 37
+Victoire bleu : 13
+Taux de victoire rouge : 74%
+Temps d'exécution : 11255.602044343948s
+Temps moyen par simulation : 3.1820164116424836s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 3
+Victoire bleu : 7
+Taux de victoire rouge : 30%
+Temps d'exécution : 4282.129192829132s
+Temps moyen par simulation : 81.26157541766545s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 4
+Victoire bleu : 6
+Taux de victoire rouge : 40%
+Temps d'exécution : 3550.0190448760986s
+Temps moyen par simulation : 45.49653551703575s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 3
+Victoire bleu : 7
+Taux de victoire rouge : 30%
+Temps d'exécution : 4070.8527483940125s
+Temps moyen par simulation : 103.24194463100878s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 33
+Victoire bleu : 17
+Taux de victoire rouge : 66%
+Temps d'exécution : 11933.143080472946s
+Temps moyen par simulation : 3.417771437338974s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 3
+Victoire bleu : 7
+Taux de victoire rouge : 30%
+Temps d'exécution : 3700.8920772075653s
+Temps moyen par simulation : 19.672148490233198s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 10
+Stratégie du joueur rouge : Alpha Beta : 10 depth
+Stratégie du joueur bleu : Monte Carlo : 400 simu
+Victoire rouge : 1
+Victoire bleu : 9
+Taux de victoire rouge : 10%
+Temps d'exécution : 5469.455330133438s
+Temps moyen par simulation : 47.537833150704934s
+
+
+
+
+
+Taille de la grille : 6
+Nombre d'itérations : 50
+Stratégie du joueur rouge : Monte Carlo : 400 simu
+Stratégie du joueur bleu : Alpha Beta : 9 depth
+Victoire rouge : 36
+Victoire bleu : 14
+Taux de victoire rouge : 72%
+Temps d'exécution : 11539.66548538208s
+Temps moyen par simulation : 4.56122104483322s
+
+
+
+
+
