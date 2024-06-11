@@ -59,7 +59,7 @@ if __name__ == "__main__":
         intermediate_time = time.time()
         print("Temps de simulation : ", end_time_simu - start_time_simu, "s")
         print("Winner :", "rouge" if env.score() == 100 else "bleu")
-        mean_simu_time /= nb_iteration
+    mean_simu_time /= nb_iteration
     # ---- Affichage du profilage ----
 
     profiler.disable()

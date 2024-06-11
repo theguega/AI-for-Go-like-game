@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Dodo"
     size = 4
-    nb_iteration = 1
+    nb_iteration = 100
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         intermediate_time = time.time()
         print("Temps de simulation : ", end_time_simu - start_time_simu, "s")
         print("Winner :", "rouge" if env.score() == 100 else "bleu")
-        mean_simu_time /= nb_iteration
+    mean_simu_time /= nb_iteration
     # ---- Affichage du profilage ----
 
     profiler.disable()
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = False
+    export = True
 
     if export:
         strat_rouge: str = "Monte Carlo Tree Search : 1000 simu"
