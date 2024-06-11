@@ -10,9 +10,9 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Gopher"
-    size = 6
-    nb_iteration = 50
+    name = "Dodo"
+    size = 4
+    nb_iteration = 1
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -28,13 +28,20 @@ if __name__ == "__main__":
 
         env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
         tour = 0
+        root: MCTSNode = None  # mcts root node
 
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
-                action = env.strategy_alpha_beta(6)
+                action, root = env.strategy_mcts(1000, root=root)
+                #action = env.strategy_random()
             else:
-                action = env.strategy_mc(400)
+                action = env.strategy_mc(1000)
+                # for the mcts, we need to update the root node
+                if root:
+                    for child in root.children:
+                        if child.parent_action == action:
+                            root = child
 
             fin_time_tour = time.time()
             print("Joueur :",env.player," | ", "Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
@@ -73,11 +80,11 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = True
+    export = False
 
     if export:
-        strat_rouge: str = "Alpha Beta : 6 depth"
-        strat_bleu: str = "Monte Carlo : 400 simu"
+        strat_rouge: str = "Monte Carlo Tree Search : 1000 simu"
+        strat_bleu: str = "Monte Carlo : 1000 simu"
         if name == "Dodo":
             path = "docu/simulations_dodo.txt"
         elif name == "Gopher":

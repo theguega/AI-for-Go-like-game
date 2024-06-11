@@ -10,9 +10,9 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Gopher"
-    size = 8
-    nb_iteration = 50
+    name = "Dodo"
+    size = 4
+    nb_iteration = 1
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -33,10 +33,10 @@ if __name__ == "__main__":
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
-                action, root = env.strategy_mcts(400, root=root)
+                action, root = env.strategy_mcts(1000, root=root)
                 #action = env.strategy_random()
             else:
-                action = env.strategy_mc(400)
+                action = env.strategy_mc(1000)
                 # for the mcts, we need to update the root node
                 if root:
                     for child in root.children:
@@ -47,9 +47,7 @@ if __name__ == "__main__":
             print("Joueur :",env.player," | ", "Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
             mean_simu_time += fin_time_tour-debut_time_tour
             tour += 1
-            print("Action :", action)
             env.play(action)
-            print(env.red_pawns if env.player == gopher_dodo.B else env.blue_pawns)
             print()
         end_time_simu = time.time()
 
@@ -81,30 +79,4 @@ if __name__ == "__main__":
     )
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
-    # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = False
-
-    if export:
-        strat_rouge: str = "Monte Carlo Tree Search : 400 simu"
-        strat_bleu: str = "Monte Carlo : 400 simu"
-        if name == "Dodo":
-            path = "docu/simulations_dodo.txt"
-        elif name == "Gopher":
-            path = "docu/simulations_gopher.txt"
-
-        with open(path, "a") as file:
-            file.write(
-                f"Taille de la grille : {size}\n"
-                f"Nombre d'itérations : {nb_iteration}\n"
-                f"Stratégie du joueur rouge : {strat_rouge}\n"
-                f"Stratégie du joueur bleu : {strat_bleu}\n"
-                f"Victoire rouge : {victoire_rouge}\n"
-                f"Victoire bleu : {victoire_bleu}\n"
-                f"Taux de victoire rouge : {round(victoire_rouge / nb_iteration * 100)}%\n"
-                f"Temps d'exécution : {end_time - start_time}s\n"
-                f"Temps moyen par simulation : {mean_simu_time}s\n"
-                f"\n\n\n\n\n"
-            )
-        file.close()
-    else:
-        env.final_show()  # affichage de la dernière grille finale
+    env.final_show()
