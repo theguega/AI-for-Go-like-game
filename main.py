@@ -85,8 +85,8 @@ if __name__ == "__main__":
     export = False
 
     if export:
-        strat_rouge: str = "Monte Carlo Tree Search : 1000 simu"
-        strat_bleu: str = "Monte Carlo : 1000 simu"
+        strat_rouge: str = "MCTS 400 simulations"
+        strat_bleu: str = "MC 400 simulations"
         if name == "Dodo":
             path = "docu/simulations_dodo.txt"
         elif name == "Gopher":

@@ -2,20 +2,6 @@ from tools.game import *
 import numpy as np
 from collections import defaultdict, deque
 from typing import *
-from copy import deepcopy
-
-Cell = Hex
-ActionGopher = Cell
-ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
-Action = Union[ActionGopher, ActionDodo]
-Player = int  # 1 ou 2
-R = 1
-B = 2
-EMPTY = 0
-Score = int
-Time = int
-State = dict[Hex, Player]
-Neighbors = dict[Hex, list[Hex]]
 
 
 class MCTSNode:
