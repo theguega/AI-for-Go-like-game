@@ -28,20 +28,13 @@ if __name__ == "__main__":
 
         env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
         tour = 0
-        root: MCTSNode = None  # mcts root node
 
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
-                action, root = env.strategy_mcts(1000, root=root)
-                #action = env.strategy_random()
+                action, _ = env.strategy_mcts(400)
             else:
-                action = env.strategy_mc(1000)
-                # for the mcts, we need to update the root node
-                if root:
-                    for child in root.children:
-                        if child.parent_action == action:
-                            root = child
+                action = env.strategy_mc(400)
 
             fin_time_tour = time.time()
             print("Joueur :",env.player," | ", "Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
@@ -79,4 +72,30 @@ if __name__ == "__main__":
     )
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
-    env.final_show()
+    # ---- Export des données lors des simulations sur serveur dans fichier text ----
+    export = False
+
+    if export:
+        strat_rouge: str = "Monte Carlo Tree Search : 1000 simu"
+        strat_bleu: str = "Monte Carlo : 1000 simu"
+        if name == "Dodo":
+            path = "docu/simulations_dodo.txt"
+        elif name == "Gopher":
+            path = "docu/simulations_gopher.txt"
+
+        with open(path, "a") as file:
+            file.write(
+                f"Taille de la grille : {size}\n"
+                f"Nombre d'itérations : {nb_iteration}\n"
+                f"Stratégie du joueur rouge : {strat_rouge}\n"
+                f"Stratégie du joueur bleu : {strat_bleu}\n"
+                f"Victoire rouge : {victoire_rouge}\n"
+                f"Victoire bleu : {victoire_bleu}\n"
+                f"Taux de victoire rouge : {round(victoire_rouge / nb_iteration * 100)}%\n"
+                f"Temps d'exécution : {end_time - start_time}s\n"
+                f"Temps moyen par simulation : {mean_simu_time}s\n"
+                f"\n\n\n\n\n"
+            )
+        file.close()
+    else:
+        env.final_show()  # affichage de la dernière grille finale
