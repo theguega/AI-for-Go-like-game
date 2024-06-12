@@ -37,8 +37,17 @@ if __name__ == "__main__":
                 action = env.strategy_mc(400)
 
             fin_time_tour = time.time()
-            print("Joueur :",env.player," | ", "Tour n°", tour, " : ", fin_time_tour-debut_time_tour, "s")
-            mean_simu_time += fin_time_tour-debut_time_tour
+            print(
+                "Joueur :",
+                env.player,
+                " | ",
+                "Tour n°",
+                tour,
+                " : ",
+                fin_time_tour - debut_time_tour,
+                "s",
+            )
+            mean_simu_time += fin_time_tour - debut_time_tour
             tour += 1
             env.play(action)
             print()
