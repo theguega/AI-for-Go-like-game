@@ -93,6 +93,70 @@ class Game:
     def strategy_random(self) -> Action:
         res: list[Action] = self.legals()
         return random.choice(res)
+    
+    def strategy_negascout(self, max_depth=5) -> Action:
+        return self.negascout(max_depth, -float("inf"), float("inf"))[0]
+
+    def negascout(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
+        # Récupération des coups possibles
+        leg: list[Action] = self.legals()
+
+        if len(leg) == 0:
+            return None, self.score()
+
+        if depth == 0:
+            return None, self.heuristic_evaluation(leg)
+
+        if self.player == R:
+            best_score: float = -float("inf")
+            best_action: Action = None
+            first_move = True
+            for action in leg:
+                self.play(action)
+                if first_move:
+                    _, score = self.negascout(depth - 1, -beta, -alpha)
+                else:
+                    _, score = self.negascout(depth - 1, -alpha-1, -alpha)
+                    if alpha < score < beta:
+                        _, score = self.negascout(depth - 1, -beta, -score)
+                self.undo(action)
+                score = -score
+                if score > best_score:
+                    best_score = score
+                    best_action = action
+                alpha = max(alpha, best_score)
+                if alpha >= beta:
+                    break
+                first_move = False
+            return best_action, best_score
+        else:
+            best_score: float = float("inf")
+            best_action: Action = None
+            first_move = True
+            for action in leg:
+                self.play(action)
+                if first_move:
+                    _, score = self.negascout(depth - 1, -beta, -alpha)
+                else:
+                    _, score = self.negascout(depth - 1, -alpha-1, -alpha)
+                    if alpha < score < beta:
+                        _, score = self.negascout(depth - 1, -beta, -score)
+                self.undo(action)
+                score = -score
+                if score < best_score:
+                    best_score = score
+                    best_action = action
+                beta = min(beta, best_score)
+                if alpha >= beta:
+                    break
+                first_move = False
+            return best_action, best_score
+
+    def strategy_iterative_deepening(self, max_depth=5) -> Action:
+        best_action = None
+        for depth in range(1, max_depth + 1):
+            best_action, _ = self.alpha_beta(depth, -float("inf"), float("inf"))
+        return best_action
 
     def strategy_alpha_beta(self, max_depth=5) -> Action:
         return self.alpha_beta(max_depth, -float("inf"), float("inf"))[0]
@@ -176,6 +240,7 @@ class Game:
             root: MCTSNode = MCTSNode(self.legals(), self.player)
         root = root.best_action(self, nb_simu=nb_simu)
         return root.parent_action, root
+
 
 
 Environment = Game

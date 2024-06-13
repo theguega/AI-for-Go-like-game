@@ -32,9 +32,9 @@ if __name__ == "__main__":
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
-                action, _ = env.strategy_mcts(400)
+                action = env.strategy_alpha_beta(6)
             else:
-                action = env.strategy_mc(400)
+                action = env.strategy_iterative_deepening(5)
 
             fin_time_tour = time.time()
             print(
@@ -107,4 +107,5 @@ if __name__ == "__main__":
             )
         file.close()
     else:
-        env.final_show()  # affichage de la dernière grille finale
+        pass
+        #env.final_show()  # affichage de la dernière grille finale
