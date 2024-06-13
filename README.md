@@ -2,7 +2,14 @@
 
 Ce projet met en place plusieurs strategies d'Intelligence Artificielle permettant de jouer aux jeux Dodo et Gopher.  
 
-![gopher-image](doc/gopher.jpg "Gopher") {: style="height:83px"} ![dodo-image](doc/dodo.jpg "Dodo") {: style="height:83px"}
+<div style="display:flex">
+     <div style="flex:1;padding-right:10px;">
+          <img src="doc/gopher.jpg" width="200"/>
+     </div>
+     <div style="flex:1;padding-left:10px;">
+          <img src="doc/dodo.jpg" width="300"/>
+     </div>
+</div>
 
 # Mise en place des outils de jeu
 
