@@ -51,7 +51,7 @@ rm config.json server.json
 
 ## Utilisation du client
 
-1. Ouvrir le fichier `main.py` et définir votre strategy en adaptant la ligne `x`avec une des statégies suivantes :  
+1. Ouvrir le fichier `main.py` et définir votre strategy en adaptant la ligne `133` (paramètre de la fonction start) avec une des statégies suivantes :  
 
 - strategy_mc  
 - strategy_mcts  
