@@ -92,7 +92,7 @@ action = env.strategy_random()
 action = env.strategy_mc(simu)
 action, _ = env.strategy_mcts(simu)
 ```
-  
 
+---
 
-Credits : Aubin Vert & Théo Guegan
+Credits : Aubin Vert & Théo Guegan - GI02 - P24

@@ -62,7 +62,7 @@ if __name__ == "__main__":
             depth = 6
             simu = 400
             if env.player == RED:
-                action = env.strategy_alpha_beta(depth) #change strategy for RED player here
+                action = env.strategy_random() #change strategy for RED player here
             else:
                 depth += 1
                 action, _ = env.strategy_mcts(simu) #change strategy for BLUE player here
