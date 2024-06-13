@@ -6,10 +6,10 @@ Ce projet met en place plusieurs strategies d'Intelligence Artificielle permetta
     <table>
 	    <tr>
     	    <td style="padding:10px">
-        	    <img src="doc/dodo.jpg" width="200"/>
+        	    <img src="doc/dodo.jpg" width="250"/>
       	    </td>
             <td style="padding:10px">
-            	<img src="doc/gopher.jpg" width="200"/>
+            	<img src="doc/gopher.jpg" width="250"/>
             </td>
         </tr>
     </table>
@@ -71,6 +71,8 @@ rm config.json server.json
 - strategy_negascoot
 - strategy_alphabeta
 - strategy_random  
+
+_A noter que toutes les stratégies cités au dessus sont fonctionnelles à la fois sur Gopher et Dodo, toute l'adaptation se fait automatiquement_  
 
 2. Lancer le client via la commande suivante :
 
