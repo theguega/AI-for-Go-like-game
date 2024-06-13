@@ -1,25 +1,19 @@
 from typing import Union
-from tools.hexagons import *
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import random
 from collections import deque
 import numpy as np
+
+from tools.hexagons import *
 from tools.mcts import *
+from client.gndclient import *
 from tools.mcts import MCTSNode
 
-Cell = Hex
-ActionGopher = Cell
-ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
-Action = Union[ActionGopher, ActionDodo]
-Player = int  # 1 ou 2
-R = 1
-B = 2
-EMPTY = 0
-Score = int
-Time = int
-State = dict[Hex, Player]
-Neighbors = dict[Hex, list[Hex]]
+# -------- Types - modifiés --------
+Cell_perso = Hex
+State_perso = dict[Cell_perso, Union[Player, int]]
+Neighbors = dict[Cell_perso, list[Cell_perso]]
 
 
 # -------- Environnement --------
@@ -29,18 +23,18 @@ class Game:
     def __init__(
         self,
         game: str,
-        state: State,
+        state: State_perso,
         player: Player,
         hex_size: int,
         total_time: Time,
     ):
-        if player not in [R, B]:
+        if player not in [RED, BLUE]:
             raise ValueError("player must be 1 or 2")
         if hex_size < 1:
             raise ValueError("hex_size must be >= 1")
 
         self.game: str = game
-        self.state: State = state
+        self.state: State_perso = state
         self.player: Player = player
         self.hex_size: int = hex_size
         self.total_time: Time = total_time
@@ -53,10 +47,10 @@ class Game:
             corners = polygon_corners(layout, hexagon)
             center = hex_to_pixel(layout, hexagon)
 
-            if player == R:
+            if player == RED:
                 color = "red"
                 text_color = "white"
-            elif player == B:
+            elif player == BLUE:
                 color = "blue"
                 text_color = "white"
             else:
@@ -107,7 +101,7 @@ class Game:
         if depth == 0:
             return None, self.heuristic_evaluation(leg)
 
-        if self.player == R:
+        if self.player == RED:
             best_score: float = -float("inf")
             best_action: Action = None
             first_move = True
@@ -171,7 +165,7 @@ class Game:
         if depth == 0:
             return None, self.heuristic_evaluation(leg)
 
-        if self.player == R:
+        if self.player == RED:
             best_score: float = -float("inf")
             best_action: Action = None
             for action in leg:
@@ -226,7 +220,7 @@ class Game:
                     self.undo(stack.pop())
 
             self.undo(stack.pop())
-            if self.player == R:
+            if self.player == RED:
                 gain = victoire_rouge / nb_iter
             else:
                 gain = victoire_bleu / nb_iter
@@ -250,7 +244,7 @@ class GameGopher(Game):
     def __init__(
         self,
         game: str,
-        state: State,
+        state: State_perso,
         player: Player,
         hex_size: int,
         total_time: Time,
@@ -259,8 +253,8 @@ class GameGopher(Game):
         super().__init__(game, state, player, hex_size, total_time)
 
         # initialisation des pions
-        self.red_pawns: State = {}
-        self.blue_pawns: State = {}
+        self.red_pawns: State_perso = {}
+        self.blue_pawns: State_perso = {}
 
         # initilisations de tous les voisins
         neighbor_gopher = [
@@ -297,10 +291,10 @@ class GameGopher(Game):
         # else, we we can place a pawn on a cell that has exactly one enemy connection and no friendly connections
         # O(nb_paws) = O(nb_paws)
         for hexagon, _ in (
-            self.red_pawns.items() if self.player == B else self.blue_pawns.items()
+            self.red_pawns.items() if self.player == BLUE else self.blue_pawns.items()
         ):
             # O(6) = O(1)
-            moves: list[Cell] = []
+            moves: list[Cell_perso] = []
 
             for neighbor in self.neighbors[hexagon]:
                 if self.state[neighbor] == EMPTY:
@@ -324,7 +318,7 @@ class GameGopher(Game):
         self.state[action] = self.player
 
         # update pawns
-        if self.player == R:
+        if self.player == RED:
             self.red_pawns[action] = self.player
         else:
             self.blue_pawns[action] = self.player
@@ -338,16 +332,16 @@ class GameGopher(Game):
         self.state[action] = EMPTY
 
         # update pawns
-        if self.player == R:
+        if self.player == RED:
             del self.red_pawns[action]
         else:
             del self.blue_pawns[action]
 
     def score(self) -> Score:
-        return -100 if self.player == R else 100
+        return -100 if self.player == RED else 100
 
     def heuristic_evaluation(self, leg) -> Score:
-        if self.player == R:
+        if self.player == RED:
             return len(self.red_pawns) / len(leg)
         else:
             return -len(self.blue_pawns) / len(leg)
@@ -357,7 +351,7 @@ class GameDodo(Game):
     def __init__(
         self,
         game: str,
-        state: State,
+        state: State_perso,
         player: Player,
         hex_size: int,
         total_time: Time,
@@ -366,12 +360,12 @@ class GameDodo(Game):
         super().__init__(game, state, player, hex_size, total_time)
 
         # initialisation des pions
-        self.red_pawns: list[Cell] = []
-        self.blue_pawns: list[Cell] = []
+        self.red_pawns: list[Cell_perso] = []
+        self.blue_pawns: list[Cell_perso] = []
         for hexagon, play in state.items():
-            if play == R:
+            if play == RED:
                 self.red_pawns.append(hexagon)
-            elif play == B:
+            elif play == BLUE:
                 self.blue_pawns.append(hexagon)
 
         # initilisations de tous les voisins
@@ -413,10 +407,10 @@ class GameDodo(Game):
         res: list[ActionDodo] = []
 
         # O(nb_paws*3) = O(nb_paws)
-        for hexagon in self.red_pawns if self.player == R else self.blue_pawns:
+        for hexagon in self.red_pawns if self.player == RED else self.blue_pawns:
             for possible_move in (
                 self.red_forward[hexagon]
-                if self.player == R
+                if self.player == RED
                 else self.blue_forward[hexagon]
             ):
                 if self.state[possible_move] == EMPTY:
@@ -430,7 +424,7 @@ class GameDodo(Game):
         self.state[action[1]] = self.player
 
         # update pawns
-        if self.player == R:
+        if self.player == RED:
             self.red_pawns.remove(action[0])
             self.red_pawns.append(action[1])
         else:
@@ -447,7 +441,7 @@ class GameDodo(Game):
         self.state[action[1]] = EMPTY
 
         # update pawns
-        if self.player == R:
+        if self.player == RED:
             self.red_pawns.remove(action[1])
             self.red_pawns.append(action[0])
         else:
@@ -455,17 +449,17 @@ class GameDodo(Game):
             self.blue_pawns.append(action[0])
 
     def score(self) -> Score:
-        return 100 if self.player == R else -100
+        return 100 if self.player == RED else -100
 
     def heuristic_evaluation(self, legals) -> Score:
         # less legals moves is better
-        if self.player == R:
+        if self.player == RED:
             score1 = (len(self.red_pawns) * 3) / len(legals)
         else:
             score1 = -(len(self.blue_pawns) * 3) / len(legals)
 
         # mean of the height of the pawns
-        if self.player == R:
+        if self.player == RED:
             score2 = sum([pawn.r for pawn in self.red_pawns]) / len(self.red_pawns)
         else:
             score2 = sum([pawn.r for pawn in self.blue_pawns]) / len(self.blue_pawns)
@@ -475,42 +469,27 @@ class GameDodo(Game):
 # -------- Initlisation des plateaux de jeu --------
 
 
-def new_dodo(h: int) -> State:
+def new_dodo(h: int) -> State_perso:
     h = h - 1  # pour avoir un plateau de taille h
-    res: State = {}
+    res: State_perso = {}
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
         qmax = min(h, r + h)
         for q in range(qmin, qmax + 1):
             res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
             if -q > r + (h - 2):
-                res[axial_to_cube(DoubledCoord(q, r))] = R
+                res[axial_to_cube(DoubledCoord(q, r))] = RED
             elif r > -q + (h - 2):
-                res[axial_to_cube(DoubledCoord(q, r))] = B
+                res[axial_to_cube(DoubledCoord(q, r))] = BLUE
     return res
 
 
-def new_gopher(h: int) -> State:
+def new_gopher(h: int) -> State_perso:
     h = h - 1  # pour avoir un plateau de taille h
-    res: State = {}
+    res: State_perso = {}
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
         qmax = min(h, r + h)
         for q in range(qmin, qmax + 1):
             res[axial_to_cube(DoubledCoord(q, r))] = EMPTY
     return res
-
-
-def initialize(
-    game: str, state: State, player: Player, hex_size: int, total_time: Time
-) -> Environment:
-    """
-    Initialize the environment with the game, the state, the player, the hex_size and the total_time
-    """
-    if game == "Gopher":
-        env = GameGopher(game, state, player, hex_size, total_time)
-    elif game == "Dodo":
-        env = GameDodo(game, state, player, hex_size, total_time)
-    else:
-        raise ValueError("game must be 'Gopher' or 'Dodo'")
-    return env

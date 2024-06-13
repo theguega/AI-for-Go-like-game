@@ -320,3 +320,31 @@ Temps moyen par simulation : 29.067926058769228s
 
 
 
+Taille de la grille : 4
+Nombre d'itérations : 50
+Stratégie du joueur rouge : MC 400 simulations
+Stratégie du joueur bleu : MCTS 400 simulations
+Victoire rouge : 0
+Victoire bleu : 50
+Taux de victoire rouge : 0%
+Temps d'exécution : 0.09604620933532715s
+Temps moyen par simulation : 0.0010002613067626952s
+
+
+
+
+
+Taille de la grille : 4
+Nombre d'itérations : 50
+Stratégie du joueur rouge : MC 400 simulations
+Stratégie du joueur bleu : MCTS 400 simulations
+Victoire rouge : 0
+Victoire bleu : 50
+Taux de victoire rouge : 0%
+Temps d'exécution : 0.07980108261108398s
+Temps moyen par simulation : 0.0008216333389282226s
+
+
+
+
+

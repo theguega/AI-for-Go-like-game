@@ -1,8 +1,18 @@
-import tools.game as gopher_dodo
-from tools.mcts import *
+#######################################################################
+#######################################################################
+##############                                       ##################
+#############       CE FICHIER IMPLEMENTE NOTRE       #################
+##############      NOTRE BOUCLE DE JEUX PERSO       ##################
+##############                                       ##################
+#######################################################################
+#######################################################################
+
 import cProfile
 import pstats
 import time
+
+from client.gndclient import *
+from tools.game import *
 
 
 if __name__ == "__main__":
@@ -10,9 +20,12 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = "Dodo"
+    name = GOPHER_STR
     size = 4
+
+    display=False
     nb_iteration = 50
+
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -21,18 +34,18 @@ if __name__ == "__main__":
     for i in range(nb_iteration):
         print("Simulation :", i)
         start_time_simu = time.time()
-        if name == "Dodo":
-            initial_state = gopher_dodo.new_dodo(size)
-        elif name == "Gopher":
-            initial_state = gopher_dodo.new_gopher(size)
+        if name == DODO_STR:
+            initial_state = new_dodo(size)
+        elif name == GOPHER_STR:
+            initial_state = new_gopher(size)
 
-        env = gopher_dodo.initialize(name, initial_state, gopher_dodo.R, size, 50)
+        env = initialize(name, initial_state, RED, size, 50)
         tour = 0
 
         while not env.final():
             debut_time_tour = time.time()
-            if env.player == gopher_dodo.R:
-                action = env.strategy_mc(400)
+            if env.player == RED:
+                action = env.strategy_alpha_beta(6)
             else:
                 action, _ = env.strategy_mcts(400)
 
@@ -51,6 +64,8 @@ if __name__ == "__main__":
             tour += 1
             env.play(action)
             print()
+            if display:
+                env.tmp_show()
         end_time_simu = time.time()
 
         if env.score() == 100:
@@ -106,6 +121,6 @@ if __name__ == "__main__":
                 f"\n\n\n\n\n"
             )
         file.close()
-    else:
-        pass
-        #env.final_show()  # affichage de la dernière grille finale
+    
+    if display:
+        env.final_show()

@@ -1,20 +1,9 @@
-from tools.game import *
 import numpy as np
 from collections import defaultdict, deque
 from typing import *
 
-Cell = Hex
-ActionGopher = Cell
-ActionDodo = tuple[Cell, Cell]  # case de départ -> case d'arrivée
-Action = Union[ActionGopher, ActionDodo]
-Player = int  # 1 ou 2
-R = 1
-B = 2
-EMPTY = 0
-Score = int
-Time = int
-State = dict[Hex, Player]
-Neighbors = dict[Hex, list[Hex]]
+from tools.game import *
+from client.gndclient import *
 
 class MCTSNode:
     def __init__(
@@ -66,7 +55,7 @@ class MCTSNode:
 
     def backpropagate(self, result: int):
         self._number_of_visits += 1.0
-        if self.associated_player == B:
+        if self.associated_player == BLUE:
             if result == -100:
                 self._wins += 1
             else:
