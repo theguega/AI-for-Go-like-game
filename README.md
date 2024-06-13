@@ -1,6 +1,6 @@
 # IA02 - Projet - P24
 
-Ce projet met en place plusieurs strategies d'Intelligence Artificielle permettant de jouer aux jeux Dodo et Gopher.  
+Ce projet met en place plusieurs stratégies d'Intelligence Artificielle permettant de jouer aux jeux Dodo et Gopher.  
 
 <div id="image-table">
     <table>
@@ -19,7 +19,7 @@ Ce projet met en place plusieurs strategies d'Intelligence Artificielle permetta
 
 ## Configuration du projet
 
-Pour l'utilisation du projet, nous recommandons l'utilisatiob d'un environnement virtuel, ici en utilisant anaconda par exemple :  
+Pour l'utilisation du projet, nous recommandons l'utilisation d'un environnement virtuel, ici en utilisant anaconda par exemple :  
 
 ```bash
 git clone https://gitlab.utc.fr/guegathe/ia02_project.git
@@ -29,12 +29,12 @@ conda activate ia02
 pip install -r requirements.txt
 ```
 
-## Utilisation du server
+## Utilisation du serveur
 
-Le serveur s'exécute en ligne de commande (terminal sous linux et macOS, powershell sous windows) 
+Le serveur s'exécute en ligne de commande (terminal sous Linux et macOS, PowerShell sous Windows) 
 
-1. Copier le bon executable dans votre répertoire de travail. On suppose par la suite que l'exécutable s'appelle `/server/gndserver`
-2. Ajouter les droits en exécution (si besoin sous linux et MaxOS) : `chmod a+x /server/gndserver`
+1. Copier le bon exécutable dans votre répertoire de travail. On suppose par la suite que l'exécutable s'appelle `/server/gndserver`
+2. Ajouter les droits en exécution (si besoin sous Linux et MacOS) : `chmod a+x /server/gndserver`
 3. Vérifier le fonctionnement et voir les options : `./server/gndserver`
 
 ```bash
@@ -72,7 +72,7 @@ rm config.json server.json
 - strategy_alphabeta
 - strategy_random  
 
-_A noter que toutes les stratégies cités au dessus sont fonctionnelles à la fois sur Gopher et Dodo, toute l'adaptation se fait automatiquement_  
+_À noter que toutes les stratégies citées au-dessus sont fonctionnelles à la fois sur Gopher et Dodo, toute l'adaptation se fait automatiquement._  
 
 2. Lancer le client via la commande suivante :
 
@@ -83,9 +83,9 @@ python3 main.py numero_groupe nomjoueur1 nomjoueur2
 
 ## Faire tourner des simulations
 
-Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos test avec un export sur serveur et un profilage pour verifier le temps d'execution de chauque fonction.  
+Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos tests avec un export sur serveur et un profilage pour vérifier le temps d'exécution de chaque fonction.  
 
-Les paramètres `Export`, `size`, `name`, `display` et `nb_iteration` sont adaptables ansi que la strategy des joueurs parmis les suivantes aux lignes 63 et 65 : 
+Les paramètres `Export`, `size`, `name`, `display` et `nb_iteration` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes 63 et 65 : 
 
 ```python
 action = env.strategy_alpha_beta(depth)
@@ -97,4 +97,4 @@ action, _ = env.strategy_mcts(simu)
 
 ---
 
-Credits : Aubin Vert & Théo Guegan - GI02 - P24
+Crédits : Aubin Vert & Théo Guegan - GI02 - P24
