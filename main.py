@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # ---- Boucle de jeu ----
     name = "Dodo"
     size = 4
-    nb_iteration = 1
+    nb_iteration = 50
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
@@ -32,9 +32,9 @@ if __name__ == "__main__":
         while not env.final():
             debut_time_tour = time.time()
             if env.player == gopher_dodo.R:
-                action = env.strategy_alpha_beta(6)
+                action = env.strategy_mc(400)
             else:
-                action = env.strategy_iterative_deepening(5)
+                action, _ = env.strategy_mcts(400)
 
             fin_time_tour = time.time()
             print(
@@ -82,15 +82,15 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = False
+    export = True
 
     if export:
-        strat_rouge: str = "MCTS 400 simulations"
-        strat_bleu: str = "MC 400 simulations"
+        strat_rouge: str = "MC 400 simulations"
+        strat_bleu: str = "MCTS 400 simulations"
         if name == "Dodo":
-            path = "docu/simulations_dodo.txt"
+            path = "doc/simulations_dodo.txt"
         elif name == "Gopher":
-            path = "docu/simulations_gopher.txt"
+            path = "doc/simulations_gopher.txt"
 
         with open(path, "a") as file:
             file.write(
