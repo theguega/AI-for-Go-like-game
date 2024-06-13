@@ -19,6 +19,8 @@ Ce projet met en place plusieurs strategies d'Intelligence Artificielle permetta
 
 ## Configuration du projet
 
+Pour l'utilisation du projet, nous recommandons l'utilisatiob d'un environnement virtuel, ici en utilisant anaconda par exemple :  
+
 ```bash
 git clone https://gitlab.utc.fr/guegathe/ia02_project.git
 cd ia02_project
