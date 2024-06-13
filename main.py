@@ -30,14 +30,6 @@ def get_action(env : Environment, new_state : State) -> Action :
                     return hex
         return None
     elif env.game == DODO_STR:
-        # find the cell that appeard in the new state
-        destination = None
-        for pos,player in new_state:
-            if player != EMPTY:
-                hex = cell_to_cellperso(pos)
-                if env.state[hex] == EMPTY:
-                    destination = pos
-                    break
         #find the cell that dissapeard in the old state
         source = None
         for hex, player in env.state.items():
@@ -46,8 +38,17 @@ def get_action(env : Environment, new_state : State) -> Action :
                 for cell2, player2 in new_state:
                     if player2 == EMPTY:
                         if pos == cell2:
-                            source = pos
+                            source = hex
                             break
+
+        # find the cell that appeard in the new state
+        destination = None
+        for pos,player in new_state:
+            if player != EMPTY:
+                hex = cell_to_cellperso(pos)
+                if env.state[hex] == EMPTY:
+                    destination = hex
+                    break
         if source is None or destination is None:
             return None
         else :
@@ -85,70 +86,118 @@ def strategy_brain(
 def strategy_mc(
     env: Environment, state: State, player: Player, time_left: Time
 ) -> tuple[Environment, Action]:
+    print(f"Time remaining for player {player} : {time_left}")
+
+    # update the env with the action of the opponent
     action_opponent = get_action(env, state)
-    print("Action opponent : ", action_opponent)
     if action_opponent is not None:
         env.play(action_opponent)
 
-    nb_simu : int = 400
+    # action to play
+    nb_simu : int = 1500
     action = env.strategy_mc(nb_simu)
-    print("Action played : ", action)
     env.play(action)
+
+    # convert the action for the api
+    if env.game == GOPHER_STR:
+        action = cellperso_to_cell(action)
+    elif env.game == DODO_STR:
+        action = (cellperso_to_cell(action[0]), cellperso_to_cell(action[1]))
 
     return env, action
 
 def strategy_mcts(
     env: Environment, state: State, player: Player, time_left: Time
 ) -> tuple[Environment, Action]:
+    print(f"Time remaining for player {player} : {time_left}")
+
+    # update the env with the action of the opponent
     action_opponent = get_action(env, state)
     if action_opponent is not None:
         env.play(action_opponent)
 
-    nb_simu : int = 400
-    action, _ = env.strategy_mcts(nb_simu)
+    # action to play
+    nb_simu : int = 1500
+    action, _ = env.strategy_mc(nb_simu)
     env.play(action)
-    
+
+    # convert the action for the api
+    if env.game == GOPHER_STR:
+        action = cellperso_to_cell(action)
+    elif env.game == DODO_STR:
+        action = (cellperso_to_cell(action[0]), cellperso_to_cell(action[1]))
+
     return env, action
 
 def strategy_negascoot(
     env: Environment, state: State, player: Player, time_left: Time
 ) -> tuple[Environment, Action]:
+    print(f"Time remaining for player {player} : {time_left}")
+
+    # update the env with the action of the opponent
     action_opponent = get_action(env, state)
     if action_opponent is not None:
         env.play(action_opponent)
 
+    # action to play
     depth : int = 6
     if player == BLUE:
         depth += 1
     action = env.strategy_negascout(depth)
     env.play(action)
 
+    # convert the action for the api
+    if env.game == GOPHER_STR:
+        action = cellperso_to_cell(action)
+    elif env.game == DODO_STR:
+        action = (cellperso_to_cell(action[0]), cellperso_to_cell(action[1]))
+
     return env, action
 
 def strategy_alphabeta(
     env: Environment, state: State, player: Player, time_left: Time
 ) -> tuple[Environment, Action]:
+    print(f"Time remaining for player {player} : {time_left}")
+
+    # update the env with the action of the opponent
     action_opponent = get_action(env, state)
     if action_opponent is not None:
         env.play(action_opponent)
 
+    # action to play
     depth : int = 6
     if player == BLUE:
         depth += 1
     action = env.strategy_alpha_beta(depth)
     env.play(action)
 
+    # convert the action for the api
+    if env.game == GOPHER_STR:
+        action = cellperso_to_cell(action)
+    elif env.game == DODO_STR:
+        action = (cellperso_to_cell(action[0]), cellperso_to_cell(action[1]))
+
     return env, action
 
 def strategy_random(
     env: Environment, state: State, player: Player, time_left: Time
 ) -> tuple[Environment, Action]:
+    print(f"Time remaining for player {player} : {time_left}")
+
+    # update the env with the action of the opponent
     action_opponent = get_action(env, state)
     if action_opponent is not None:
         env.play(action_opponent)
 
+    # action to play
     action = env.strategy_random()
     env.play(action)
+
+    # convert the action for the api
+    if env.game == GOPHER_STR:
+        action = cellperso_to_cell(action)
+    elif env.game == DODO_STR:
+        action = (cellperso_to_cell(action[0]), cellperso_to_cell(action[1]))
 
     return env, action
 
@@ -164,6 +213,7 @@ if __name__ == "__main__":
     parser.add_argument("group_id")
     parser.add_argument("members")
     parser.add_argument("password")
+    #parser.add_argument("-s", "--server-url", default="http://lchappuis.fr:8080/")
     parser.add_argument("-s", "--server-url", default="http://localhost:8080/")
     parser.add_argument("-d", "--disable-dodo", action="store_false")
     parser.add_argument("-g", "--disable-gopher", action="store_false")

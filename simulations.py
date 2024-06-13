@@ -35,10 +35,10 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = GOPHER_STR
-    size = 4
+    name = DODO_STR
+    size = 5
 
-    display=False
+    display=True
     nb_iteration = 50
 
     victoire_rouge = 0
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             env.play(action)
             print()
             if display:
-                env.tmp_show()
+                env.final_show()
         end_time_simu = time.time()
 
         if env.score() == 100:
