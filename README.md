@@ -63,7 +63,7 @@ rm config.json server.json
 
 ```bash
 # lancer le client
-python3 main.py 12 theo aubin
+python3 main.py numero_groupe nomjoueur1 nomjoueur2
 ```
 
 
