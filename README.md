@@ -1,5 +1,9 @@
 # IA02 - Projet - P24
 
+Ce projet met en place plusieurs strategies d'Intelligence Artificielle permettant de jouer aux jeux Dodo et Gopher.  
+
+![gopher-image](doc/gopher.jpg "Gopher") ![dodo-image](doc/dodo.jpg "Dodo")
+
 # Mise en place des outils de jeu
 
 ## Utilisation du server
