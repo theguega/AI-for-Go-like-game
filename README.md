@@ -7,7 +7,7 @@ Ce projet met en place plusieurs strategies d'Intelligence Artificielle permetta
           <img src="doc/gopher.jpg" width="200"/>
      </div>
      <div style="flex:1;padding-left:10px;">
-          <img src="doc/dodo.jpg" width="300"/>
+          <img src="doc/dodo.jpg" width="200"/>
      </div>
 </div>
 
