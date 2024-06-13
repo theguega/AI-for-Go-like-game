@@ -36,13 +36,33 @@ def initialize(
         raise ValueError("game must be 'gopher' or 'dodo'")
     return env
 
-def strategy(
+def strategy_brain(
+    env: Environment, state: State, player: Player, time_left: Time
+) -> tuple[Environment, Action]:
+    print("New state ", state)
+    print("Time remaining ", time_left)
+    print("What's your play ? ", end="")
+    s = input()
+    print()
+    t = ast.literal_eval(s)
+    return (env, t)
+
+def strategy_mc(
     env: Environment, state: State, player: Player, time_left: Time
 ) -> tuple[Environment, Action]:
     state2 : State_perso = state_to_stateperso(state)
     env.state=state2
     env.player=player
     action = env.strategy_mc(400)
+    return env, action
+
+def strategy_random(
+    env: Environment, state: State, player: Player, time_left: Time
+) -> tuple[Environment, Action]:
+    state2 : State_perso = state_to_stateperso(state)
+    env.state=state2
+    env.player=player
+    action = env.strategy_random()
     return env, action
 
 def final_result(state: State, score: Score, player: Player):
@@ -75,7 +95,7 @@ if __name__ == "__main__":
         args.password,
         available_games,
         initialize,
-        strategy,
+        strategy_mc,
         final_result,
         gui=True,
     )
