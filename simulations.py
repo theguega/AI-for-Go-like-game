@@ -59,10 +59,13 @@ if __name__ == "__main__":
 
         while not env.final():
             debut_time_tour = time.time()
+            depth = 6
+            simu = 400
             if env.player == RED:
-                action = env.strategy_alpha_beta(6)
+                action = env.strategy_alpha_beta(depth) #change strategy for RED player here
             else:
-                action, _ = env.strategy_mcts(400)
+                depth += 1
+                action, _ = env.strategy_mcts(simu) #change strategy for BLUE player here
 
             fin_time_tour = time.time()
             print(

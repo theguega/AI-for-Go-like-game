@@ -70,7 +70,7 @@ rm config.json server.json
 - strategy_mcts  
 - strategy_negascoot
 - strategy_alphabeta
-- strategy_random
+- strategy_random  
 
 2. Lancer le client via la commande suivante :
 
@@ -79,6 +79,20 @@ rm config.json server.json
 python3 main.py numero_groupe nomjoueur1 nomjoueur2
 ```
 
+## Faire tourner des simulations
+
+Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos test avec un export sur serveur et un profilage pour verifier le temps d'execution de chauque fonction.  
+
+Les paramètres `Export`, `size`, `name`, `display` et `nb_iteration` sont adaptables ansi que la strategy des joueurs parmis les suivantes aux lignes 63 et 65 : 
+
+```python
+action = env.strategy_alpha_beta(depth)
+action = env.strategy_negascout(depth)
+action = env.strategy_random()
+action = env.strategy_mc(simu)
+action, _ = env.strategy_mcts(simu)
+```
+  
 
 
 Credits : Aubin Vert & Théo Guegan
