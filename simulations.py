@@ -14,6 +14,21 @@ import time
 from client.gndclient import *
 from tools.game import *
 
+def initialize_simu(
+    game: str, state: State, player: Player, hex_size: int, total_time: Time
+) -> Environment:
+    """
+    Initialize the environment with the game, the state, the player, the hex_size and the total_time
+    """
+    if game == GOPHER_STR:
+        env = GameGopher(game, state, player, hex_size, total_time)
+    elif game == DODO_STR:
+        env = GameDodo(game, state, player, hex_size, total_time)
+    else:
+        raise ValueError("game must be 'Gopher' or 'Dodo'")
+    return env
+
+
 
 if __name__ == "__main__":
     profiler = cProfile.Profile()
@@ -39,7 +54,7 @@ if __name__ == "__main__":
         elif name == GOPHER_STR:
             initial_state = new_gopher(size)
 
-        env = initialize(name, initial_state, RED, size, 50)
+        env = initialize_simu(name, initial_state, RED, size, 50)
         tour = 0
 
         while not env.final():

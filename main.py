@@ -53,7 +53,42 @@ def strategy_mc(
     state2 : State_perso = state_to_stateperso(state)
     env.state=state2
     env.player=player
-    action = env.strategy_mc(400)
+    nb_simu : int = 400
+    action = env.strategy_mc(nb_simu)
+    return env, action
+
+def strategy_mcts(
+    env: Environment, state: State, player: Player, time_left: Time
+) -> tuple[Environment, Action]:
+    state2 : State_perso = state_to_stateperso(state)
+    env.state=state2
+    env.player=player
+    nb_simu : int = 400
+    action, _ = env.strategy_mcts(nb_simu)
+    return env, action
+
+def strategy_negascoot(
+    env: Environment, state: State, player: Player, time_left: Time
+) -> tuple[Environment, Action]:
+    state2 : State_perso = state_to_stateperso(state)
+    env.state=state2
+    env.player=player
+    depth : int = 6
+    if player == BLUE:
+        depth += 1
+    action = env.strategy_negascout(depth)
+    return env, action
+
+def strategy_alphabeta(
+    env: Environment, state: State, player: Player, time_left: Time
+) -> tuple[Environment, Action]:
+    state2 : State_perso = state_to_stateperso(state)
+    env.state=state2
+    env.player=player
+    depth : int = 6
+    if player == BLUE:
+        depth += 1
+    action = env.strategy_alpha_beta(depth)
     return env, action
 
 def strategy_random(
