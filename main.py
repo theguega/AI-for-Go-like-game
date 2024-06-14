@@ -9,6 +9,11 @@ import argparse
 from client.gndclient import start, Action, Score, Player, State, Time, DODO_STR, GOPHER_STR
 from tools.game import *
 
+SIMU_GOPHER = 2500
+SIMU_DODO = 1500
+DEPTH_GOPHER = 6
+DEPTH_DODO = 6
+
 
 def cell_to_cellperso(cell : Cell) -> Cell_perso :
     # convert from tuple[int, int] to Hex
@@ -94,7 +99,7 @@ def strategy_mc(
         env.play(action_opponent)
 
     # action to play
-    nb_simu : int = 1500
+    nb_simu : int = SIMU_GOPHER if env.game == GOPHER_STR else SIMU_DODO
     action = env.strategy_mc(nb_simu)
     env.play(action)
 
@@ -117,7 +122,7 @@ def strategy_mcts(
         env.play(action_opponent)
 
     # action to play
-    nb_simu : int = 1500
+    nb_simu : int = SIMU_GOPHER if env.game == GOPHER_STR else SIMU_DODO
     action, _ = env.strategy_mc(nb_simu)
     env.play(action)
 
@@ -140,7 +145,7 @@ def strategy_negascoot(
         env.play(action_opponent)
 
     # action to play
-    depth : int = 6
+    depth : int = DEPTH_GOPHER if env.game == GOPHER_STR else DEPTH_DODO
     if player == BLUE:
         depth += 1
     action = env.strategy_negascout(depth)
@@ -165,7 +170,7 @@ def strategy_alphabeta(
         env.play(action_opponent)
 
     # action to play
-    depth : int = 6
+    depth : int = DEPTH_GOPHER if env.game == GOPHER_STR else DEPTH_DODO
     if player == BLUE:
         depth += 1
     action = env.strategy_alpha_beta(depth)

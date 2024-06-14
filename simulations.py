@@ -6,13 +6,24 @@
 ##############                                       ##################
 #######################################################################
 #######################################################################
-
 import cProfile
 import pstats
 import time
 
 from client.gndclient import *
 from tools.game import *
+
+# board settings
+NAME = DODO_STR
+SIZE = 4
+
+# display settings
+DISPLAY=True
+
+# game settings
+NB_ITERATION = 50
+depth = 6 # depth for alphabeta algorythms
+simu = 400 # number of simulations for monte carlo algorythms
 
 def initialize_simu(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
@@ -35,32 +46,24 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    name = DODO_STR
-    size = 5
-
-    display=True
-    nb_iteration = 50
-
     victoire_rouge = 0
     victoire_bleu = 0
     start_time = time.time()
     mean_simu_time = 0
 
-    for i in range(nb_iteration):
+    for i in range(NB_ITERATION):
         print("Simulation :", i)
         start_time_simu = time.time()
-        if name == DODO_STR:
-            initial_state = new_dodo(size)
-        elif name == GOPHER_STR:
-            initial_state = new_gopher(size)
+        if NAME == DODO_STR:
+            initial_state = new_dodo(SIZE)
+        elif NAME == GOPHER_STR:
+            initial_state = new_gopher(SIZE)
 
-        env = initialize_simu(name, initial_state, RED, size, 50)
+        env = initialize_simu(NAME, initial_state, RED, SIZE, 50)
         tour = 0
 
         while not env.final():
             debut_time_tour = time.time()
-            depth = 6
-            simu = 400
             if env.player == RED:
                 action = env.strategy_random() #change strategy for RED player here
             else:
@@ -82,7 +85,7 @@ if __name__ == "__main__":
             tour += 1
             env.play(action)
             print()
-            if display:
+            if DISPLAY:
                 env.final_show()
         end_time_simu = time.time()
 
@@ -94,7 +97,7 @@ if __name__ == "__main__":
         intermediate_time = time.time()
         print("Temps de simulation : ", end_time_simu - start_time_simu, "s")
         print("Winner :", "rouge" if env.score() == 100 else "bleu")
-    mean_simu_time /= nb_iteration
+    mean_simu_time /= NB_ITERATION
     # ---- Affichage du profilage ----
 
     profiler.disable()
@@ -109,10 +112,10 @@ if __name__ == "__main__":
     print("Victoire bleu : ", victoire_bleu)
     print(
         "Avantage rouge par rapport au bleu :",
-        round((victoire_rouge - victoire_bleu) / nb_iteration * 100),
+        round((victoire_rouge - victoire_bleu) / NB_ITERATION * 100),
         "%",
     )
-    print("Taux de victoire rouge : ", round(victoire_rouge / nb_iteration * 100), "%")
+    print("Taux de victoire rouge : ", round(victoire_rouge / NB_ITERATION * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
     export = True
@@ -120,25 +123,25 @@ if __name__ == "__main__":
     if export:
         strat_rouge: str = "MC 400 simulations"
         strat_bleu: str = "MCTS 400 simulations"
-        if name == "Dodo":
+        if NAME == "Dodo":
             path = "doc/simulations_dodo.txt"
-        elif name == "Gopher":
+        elif NAME == "Gopher":
             path = "doc/simulations_gopher.txt"
 
         with open(path, "a") as file:
             file.write(
-                f"Taille de la grille : {size}\n"
-                f"Nombre d'itérations : {nb_iteration}\n"
+                f"Taille de la grille : {SIZE}\n"
+                f"Nombre d'itérations : {NB_ITERATION}\n"
                 f"Stratégie du joueur rouge : {strat_rouge}\n"
                 f"Stratégie du joueur bleu : {strat_bleu}\n"
                 f"Victoire rouge : {victoire_rouge}\n"
                 f"Victoire bleu : {victoire_bleu}\n"
-                f"Taux de victoire rouge : {round(victoire_rouge / nb_iteration * 100)}%\n"
+                f"Taux de victoire rouge : {round(victoire_rouge / NB_ITERATION * 100)}%\n"
                 f"Temps d'exécution : {end_time - start_time}s\n"
                 f"Temps moyen par simulation : {mean_simu_time}s\n"
                 f"\n\n\n\n\n"
             )
         file.close()
     
-    if display:
+    if DISPLAY:
         env.final_show()

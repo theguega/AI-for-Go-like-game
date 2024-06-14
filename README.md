@@ -6,10 +6,10 @@ Ce projet met en place plusieurs stratégies d'Intelligence Artificielle permett
     <table>
 	    <tr>
     	    <td style="padding:10px">
-        	    <img src="doc/dodo.jpg" width="250"/>
+        	    <img src="doc/dodo.jpg" width="100%"/>
       	    </td>
             <td style="padding:10px">
-            	<img src="doc/gopher.jpg" width="250"/>
+            	<img src="doc/gopher.jpg" width="100%"/>
             </td>
         </tr>
     </table>
