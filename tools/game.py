@@ -27,7 +27,7 @@ class Game:
         player: Player,
         hex_size: int,
         total_time: Time,
-        root: MCTSNode = None
+        root: MCTSNode = None,
     ):
         if player not in [RED, BLUE]:
             raise ValueError("player must be 1 or 2")
@@ -88,7 +88,7 @@ class Game:
     def strategy_random(self) -> Action:
         res: list[Action] = self.legals()
         return random.choice(res)
-    
+
     def strategy_negascout(self, max_depth=5) -> Action:
         return self.negascout(max_depth, -float("inf"), float("inf"))[0]
 
@@ -111,7 +111,7 @@ class Game:
                 if first_move:
                     _, score = self.negascout(depth - 1, -beta, -alpha)
                 else:
-                    _, score = self.negascout(depth - 1, -alpha-1, -alpha)
+                    _, score = self.negascout(depth - 1, -alpha - 1, -alpha)
                     if alpha < score < beta:
                         _, score = self.negascout(depth - 1, -beta, -score)
                 self.undo(action)
@@ -133,7 +133,7 @@ class Game:
                 if first_move:
                     _, score = self.negascout(depth - 1, -beta, -alpha)
                 else:
-                    _, score = self.negascout(depth - 1, -alpha-1, -alpha)
+                    _, score = self.negascout(depth - 1, -alpha - 1, -alpha)
                     if alpha < score < beta:
                         _, score = self.negascout(depth - 1, -beta, -score)
                 self.undo(action)
@@ -229,7 +229,6 @@ class Game:
             root: MCTSNode = MCTSNode(self.legals(), self.player)
         root = root.best_action(self, nb_simu=nb_simu)
         return root.parent_action, root
-
 
 
 Environment = Game

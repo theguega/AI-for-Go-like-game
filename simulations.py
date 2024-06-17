@@ -10,8 +10,8 @@ import cProfile
 import pstats
 import time
 
-from client.gndclient import *
-from tools.game import *
+from client.gndclient import GOPHER_STR, DODO_STR, State, Player, Time, RED
+from tools.game import GameGopher, GameDodo, Environment, new_dodo, empty_grid
 
 # board settings
 NAME = GOPHER_STR
@@ -47,8 +47,8 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    victoire_rouge = 0
-    victoire_bleu = 0
+    victoire_rouge : int = 0
+    victoire_bleu : int = 0
     start_time = time.time()
     mean_simu_time = 0
 
@@ -129,12 +129,12 @@ if __name__ == "__main__":
     if EXPORT:
         strat_rouge: str = "MC 400 simulations"
         strat_bleu: str = "MCTS 400 simulations"
-        if NAME == "Dodo":
-            path = "doc/simulations_dodo.txt"
-        elif NAME == "Gopher":
-            path = "doc/simulations_gopher.txt"
+        if NAME == GOPHER_STR:
+            PATH = "doc/simulations_dodo.txt"
+        else :
+            PATH = "doc/simulations_gopher.txt"
 
-        with open(path, "a") as file:
+        with open(PATH, "a", encoding="utf-8") as file:
             file.write(
                 f"Taille de la grille : {SIZE}\n"
                 f"Nombre d'itérations : {NB_ITERATION}\n"

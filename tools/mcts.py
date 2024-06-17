@@ -5,6 +5,7 @@ from typing import *
 from tools.game import *
 from client.gndclient import *
 
+
 class MCTSNode:
     def __init__(
         self, leg: list[Action], player: Player, parent=None, parent_action=None
