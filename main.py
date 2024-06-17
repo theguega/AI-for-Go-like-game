@@ -9,7 +9,7 @@ import argparse
 from client.gndclient import start, Action, Score, Player, State, Time, DODO_STR, GOPHER_STR
 from tools.game import *
 
-SIMU_GOPHER = 2500
+SIMU_GOPHER = 5000
 SIMU_DODO = 1500
 DEPTH_GOPHER = 6
 DEPTH_DODO = 6
@@ -150,11 +150,11 @@ def strategy_mcts(
     action_opponent = get_action(env, state)
     if action_opponent is not None:
         env.play(action_opponent)
-
+        # TO-DO : MANAGE ROOT CREATION
+    
     # action to play
-    # TO-DO : MANAGE ROOT CREATION
     nb_simu : int = SIMU_GOPHER if env.game == GOPHER_STR else SIMU_DODO
-    action, _ = env.strategy_mc(nb_simu)
+    action, _ = env.strategy_mcts(nb_simu)
     env.play(action)
 
     # convert the action for the api
@@ -268,7 +268,10 @@ if __name__ == "__main__":
         args.password,
         available_games,
         initialize,
-        strategy_mc, #change strategy here
+        #change strategy here
+        #strategy_mc, 
+        strategy_mcts,
+        #strategy_negascoot,
         final_result,
         gui=True,
     )

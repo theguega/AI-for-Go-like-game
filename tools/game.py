@@ -27,6 +27,7 @@ class Game:
         player: Player,
         hex_size: int,
         total_time: Time,
+        root: MCTSNode = None
     ):
         if player not in [RED, BLUE]:
             raise ValueError("player must be 1 or 2")
