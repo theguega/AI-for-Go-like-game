@@ -478,7 +478,7 @@ def new_dodo(h: int) -> State_perso:
     return res
 
 
-def new_gopher(h: int) -> State_perso:
+def empty_grid(h: int) -> State_perso:
     h = h - 1  # pour avoir un plateau de taille h
     res: State_perso = {}
     for r in range(h, -h - 1, -1):

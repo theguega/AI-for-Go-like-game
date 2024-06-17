@@ -14,7 +14,7 @@ from client.gndclient import *
 from tools.game import *
 
 # board settings
-NAME = DODO_STR
+NAME = GOPHER_STR
 SIZE = 4
 
 # display settings
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         if NAME == DODO_STR:
             initial_state = new_dodo(SIZE)
         elif NAME == GOPHER_STR:
-            initial_state = new_gopher(SIZE)
+            initial_state = empty_grid(SIZE)
 
         env = initialize_simu(NAME, initial_state, RED, SIZE, 50)
         tour = 0
@@ -66,10 +66,16 @@ if __name__ == "__main__":
             debut_time_tour = time.time()
             if env.player == RED:
                 depth = BASE_DEPTH
+                
                 action, _ = env.strategy_mcts(NB_SIMU)  #change strategy for RED player here
+                # action = env.strategy_alpha_beta(depth) #change strategy for RED player here
+                # action = env.strategy_mc(NB_SIMU) #change strategy for RED player here
             else:
                 depth = BASE_DEPTH+1
+
                 action = env.strategy_alpha_beta(depth) #change strategy for BLUE player here
+                # action = env.strategy_mc(NB_SIMU) #change strategy for BLUE player here
+                # action, _ = env.strategy_mcts(NB_SIMU) #change strategy for BLUE player here
 
             fin_time_tour = time.time()
             print(

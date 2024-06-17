@@ -59,22 +59,52 @@ def get_action(env : Environment, new_state : State) -> Action :
         else :
             return (source,destination)
 
+"""
 def initialize(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
 ) -> Environment:
     #create a new env
     if game == GOPHER_STR:
-        initial_state : State_perso = new_gopher(hex_size)
+        initial_state : State_perso = empty_grid(hex_size)
         env = GameGopher(game, initial_state, player, hex_size, total_time)
     elif game == DODO_STR:
         initial_state : State_perso = new_dodo(hex_size)
         env = GameDodo(game, initial_state, player, hex_size, total_time)
-    
+
     # if player is BLUE, we need to get the first action of the opponent
-    if player == BLUE:
+    if player == BLUE and game == GOPHER_STR:
         action = get_action(env, state)
         env.play(action)
 
+    return env
+"""
+
+def initialize(
+    game: str, state: State, player: Player, hex_size: int, total_time: Time
+) -> Environment:
+    #create a new env
+    initial_state : State_perso = empty_grid(hex_size)
+    if game == GOPHER_STR:
+        env = GameGopher(game, initial_state, player, hex_size, total_time)
+        # synchronize the state of the game with the state given by the server
+        for pos, player in state:
+            hex = cell_to_cellperso(pos)
+            env.state[hex] = player
+            if player == RED:
+                env.red_pawns[hex] = RED
+            elif player == BLUE:
+                env.blue_pawns[hex] = BLUE
+
+    elif game == DODO_STR:
+        env = GameDodo(game, initial_state, player, hex_size, total_time)
+        # synchronize the state of the game with the state given by the server
+        for pos, player in state:
+            hex = cell_to_cellperso(pos)
+            env.state[hex] = player
+            if player == RED:
+                env.red_pawns.append(hex)
+            elif player == BLUE:
+                env.blue_pawns.append(hex)
     return env
 
 def strategy_brain(
@@ -122,6 +152,7 @@ def strategy_mcts(
         env.play(action_opponent)
 
     # action to play
+    # TO-DO : MANAGE ROOT CREATION
     nb_simu : int = SIMU_GOPHER if env.game == GOPHER_STR else SIMU_DODO
     action, _ = env.strategy_mc(nb_simu)
     env.play(action)
