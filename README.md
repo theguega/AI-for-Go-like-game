@@ -83,9 +83,20 @@ python3 main.py numero_groupe nomjoueur1 nomjoueur2
 
 ## Faire tourner des simulations
 
+NAME = GOPHER_STR
+SIZE = 4
+
+# display settings
+DISPLAY=False
+
+# game settings
+NB_ITERATION = 50
+BASE_DEPTH = 6 # depth for alphabeta algorythms
+NB_SIMU = 400 # number of simulations for monte carlo
+
 Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos tests avec un export sur serveur et un profilage pour vérifier le temps d'exécution de chaque fonction.  
 
-Les paramètres `Export`, `size`, `name`, `display` et `nb_iteration` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes 63 et 65 : 
+Les paramètres `EXPORT`, `SIZE`, `DISPLAY`, `NAME` et `NB_ITERATION` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes `71` et `77` : 
 
 ```python
 action = env.strategy_alpha_beta(depth)

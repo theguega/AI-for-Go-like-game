@@ -17,13 +17,14 @@ from tools.game import *
 NAME = GOPHER_STR
 SIZE = 4
 
-# display settings
-DISPLAY=False
-
 # game settings
 NB_ITERATION = 50
 BASE_DEPTH = 6 # depth for alphabeta algorythms
 NB_SIMU = 400 # number of simulations for monte carlo algorythms
+
+# other settings
+DISPLAY = False
+EXPORT = True
 
 def initialize_simu(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
@@ -125,9 +126,7 @@ if __name__ == "__main__":
     print("Taux de victoire rouge : ", round(victoire_rouge / NB_ITERATION * 100), "%")
 
     # ---- Export des données lors des simulations sur serveur dans fichier text ----
-    export = True
-
-    if export:
+    if EXPORT:
         strat_rouge: str = "MC 400 simulations"
         strat_bleu: str = "MCTS 400 simulations"
         if NAME == "Dodo":
