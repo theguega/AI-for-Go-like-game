@@ -18,12 +18,12 @@ NAME = DODO_STR
 SIZE = 4
 
 # display settings
-DISPLAY=True
+DISPLAY=False
 
 # game settings
 NB_ITERATION = 50
-depth = 6 # depth for alphabeta algorythms
-simu = 400 # number of simulations for monte carlo algorythms
+BASE_DEPTH = 6 # depth for alphabeta algorythms
+NB_SIMU = 400 # number of simulations for monte carlo algorythms
 
 def initialize_simu(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
@@ -65,10 +65,11 @@ if __name__ == "__main__":
         while not env.final():
             debut_time_tour = time.time()
             if env.player == RED:
-                action = env.strategy_random() #change strategy for RED player here
+                depth = BASE_DEPTH
+                action, _ = env.strategy_mcts(NB_SIMU)  #change strategy for RED player here
             else:
-                depth += 1
-                action, _ = env.strategy_mcts(simu) #change strategy for BLUE player here
+                depth = BASE_DEPTH+1
+                action = env.strategy_alpha_beta(depth) #change strategy for BLUE player here
 
             fin_time_tour = time.time()
             print(
