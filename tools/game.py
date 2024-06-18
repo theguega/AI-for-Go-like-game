@@ -5,6 +5,7 @@ import random
 from collections import deque
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
+from time import time
 from tools.hexagons import (
     Hex,
     Layout,
@@ -244,9 +245,12 @@ class Game:
         self.cache[state_key] = (alpha, beta, result)  # Cache the result with alpha and beta values
         return result
 
-    def strategy_mc(self, nb_iter: int) -> Action:
+    def strategy_mc(self, time_left: int,cut) -> Action:
         """Monte Carlo strategy"""
+
+
         legals: list[Action] = self.legals()
+        given_time = (time_left / cut) / len(legals)
 
         if len(legals) == 1:
             return legals[0]
@@ -256,13 +260,16 @@ class Game:
         stack: deque = deque()
 
         for action in legals:
+            dep = time()
             gain: float = 0
+            nb_iter: int = 0
             victoire_rouge: int = 0
             victoire_bleu: int = 0
             stack.append(action)
             self.play(action)
 
-            for _ in range(nb_iter // len(legals) + 1):
+            while (time()-dep)<given_time:
+                nb_iter += 1
                 while not self.final():
                     tmp_action: Action = self.strategy_random()
                     stack.append(tmp_action)
@@ -284,11 +291,11 @@ class Game:
                 best_action = action
         return best_action
 
-    def strategy_mcts(self, time_left: int, root: MCTSNode = None) -> Action:
+    def strategy_mcts(self, time_left: int, cut ,root: MCTSNode = None) -> Action:
         """Monte Carlo Tree Search strategy"""
         if not root:
             root: MCTSNode = MCTSNode(self.legals(), self.player)
-        root = root.best_action(self, time_left)
+        root = root.best_action(self, time_left,cut)
         return root.parent_action, root
 
 

@@ -27,9 +27,11 @@ from tools.game import (
 )
 
 # game settings
+DODO_CUT = 10
 DODO_DEPTH = 8
 DODO_NB_SIMU = 4000
 
+GOPHER_CUT = 10
 GOPHER_DEPTH = 10
 GOPHER_NB_SIMU = 1000
 
@@ -150,9 +152,9 @@ def strategy(
 
     # playing the best action
     if env.game == DODO_STR:
-        best_action,env.root = env.strategy_mcts(time_left,env.root)
+        best_action= env.strategy_mc(time_left,DODO_CUT)
     else:
-        best_action,env.root= env.strategy_mcts(time_left,env.root)
+        best_action= env.strategy_mc(time_left,GOPHER_CUT)
     env.play(best_action)
 
     # convert the action for the api

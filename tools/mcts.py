@@ -108,12 +108,12 @@ class MCTSNode:
 
         return current_node, stack
 
-    def best_action(self, env, time_left):
+    def best_action(self, env, time_left,cut):
         """Return the best action to play"""
         nd: MCTSNode
         stack: deque[Action]
         dep = time()
-        while (time() - dep) < time_left/10:
+        while (time() - dep) < time_left/cut:
             nd, stack = self._tree_policy(env)
             reward = nd.rollout(env)
             while len(stack) > 0:
