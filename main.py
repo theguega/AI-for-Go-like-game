@@ -136,6 +136,12 @@ def strategy(
     """Strategy of depend on game"""
     # update the env with the action of the opponent
     opponent_action: Action = get_action(env, state)
+    # if using MCTS, update of the root
+    if env.root:
+        for child in env.root.children:
+            if child.parent_action == opponent_action:
+                env.root = child
+
     if opponent_action is not None:
         env.play(opponent_action)
 
@@ -144,7 +150,7 @@ def strategy(
 
     # playing the best action
     if env.game == DODO_STR:
-        best_action = env.strategy_mc(DODO_NB_SIMU)
+        best_action,env.root = env.strategy_mcts(DODO_NB_SIMU,env.root)
     else:
         best_action = env.strategy_alpha_beta_cache(GOPHER_DEPTH)
     env.play(best_action)
