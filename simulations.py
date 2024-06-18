@@ -14,10 +14,10 @@ GOPHER_SIZE = 6
 
 # game settings
 DODO_DEPTH = 8
-DODO_NB_SIMU = 3500
+DODO_NB_SIMU = 4000
 
-GOPHER_DEPTH = 9
-GOPHER_NB_SIMU = 2500
+GOPHER_DEPTH = 10
+GOPHER_NB_SIMU = 3500
 
 # other settings
 NB_ITERATION = 1
@@ -69,7 +69,6 @@ if __name__ == "__main__":
             debut_time_tour = time.time()
             if env.player == RED:
                 # change strategy for RED player here
-
                 # action = env.strategy_random()
                 action = env.strategy_mc(SIMU)
                 # action, _ = env.strategy_mcts(SIMU)
@@ -77,7 +76,6 @@ if __name__ == "__main__":
                 # action = env.strategy_alpha_beta_cache(DEPTH)
             else:
                 # change strategy for BLUE player here
-
                 # action = env.strategy_random()
                 # action = env.strategy_mc(SIMU)
                 # action, _ = env.strategy_mcts(SIMU)

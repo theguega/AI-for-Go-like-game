@@ -64,46 +64,29 @@ rm config.json server.json
 
 ## Utilisation du client
 
-1. Ouvrir le fichier `main.py` et définir votre strategy en adaptant la ligne `133` (paramètre de la fonction start) avec une des statégies suivantes :  
-
-- strategy_mc  
-- strategy_mcts  
-- strategy_negascoot
-- strategy_alphabeta
-- strategy_random  
-
-_À noter que toutes les stratégies citées au-dessus sont fonctionnelles à la fois sur Gopher et Dodo, toute l'adaptation se fait automatiquement._  
-
-2. Lancer le client via la commande suivante :
+Lancer le client via la commande suivante :
 
 ```bash
 # lancer le client
 python3 main.py numero_groupe nomjoueur1 nomjoueur2
 ```
 
+Nous avons décider d'implémenter les statégies suivantes :
+- Alpha-Beta avec cache pour Gopher  
+- Monte-Carlo pour Dodo  
+
 ## Faire tourner des simulations
 
-NAME = GOPHER_STR
-SIZE = 4
+Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos tests avec un resultat exportés sur fichier texte et un profilage pour vérifier le temps d'exécution de chaque fonction.  
 
-# display settings
-DISPLAY=False
-
-# game settings
-NB_ITERATION = 50
-BASE_DEPTH = 6 # depth for alphabeta algorythms
-NB_SIMU = 400 # number of simulations for monte carlo
-
-Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos tests avec un export sur serveur et un profilage pour vérifier le temps d'exécution de chaque fonction.  
-
-Les paramètres `EXPORT`, `SIZE`, `DISPLAY`, `NAME` et `NB_ITERATION` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes `71` et `77` : 
+Les paramètres `EXPORT`, `SIZE`, `DISPLAY`, `NAME` et `NB_ITERATION` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes `71` et `78` : 
 
 ```python
-action = env.strategy_alpha_beta(depth)
-action = env.strategy_negascout(depth)
 action = env.strategy_random()
-action = env.strategy_mc(simu)
-action, _ = env.strategy_mcts(simu)
+action = env.strategy_mc(SIMU)
+action, _ = env.strategy_mcts(SIMU)
+action = env.strategy_alpha_beta(DEPTH)
+action = env.strategy_alpha_beta_cache(DEPTH)
 ```
 
 ---
