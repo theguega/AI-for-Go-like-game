@@ -28,10 +28,10 @@ from tools.game import (
 
 # game settings
 DODO_DEPTH = 8
-DODO_NB_SIMU = 3500
+DODO_NB_SIMU = 4000
 
-GOPHER_DEPTH = 9
-GOPHER_NB_SIMU = 2500
+GOPHER_DEPTH = 10
+GOPHER_NB_SIMU = 3500
 
 
 # --------------------------------------
@@ -146,7 +146,8 @@ def strategy(
     if env.game == DODO_STR:
         best_action = env.strategy_mc(DODO_NB_SIMU)
     else:
-        best_action = env.strategy_alpha_beta_cache(GOPHER_DEPTH)
+        #best_action = env.strategy_alpha_beta_cache(GOPHER_DEPTH)
+        best_action = env.strategy_mc(GOPHER_NB_SIMU)
     env.play(best_action)
 
     # convert the action for the api
