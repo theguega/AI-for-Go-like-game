@@ -2,6 +2,7 @@
 
 from collections import defaultdict, deque
 import numpy as np
+from time import time
 
 from client.gndclient import (
     Action,
@@ -107,11 +108,12 @@ class MCTSNode:
 
         return current_node, stack
 
-    def best_action(self, env, nb_simu=1000):
+    def best_action(self, env, time_left):
         """Return the best action to play"""
         nd: MCTSNode
         stack: deque[Action]
-        for _ in range(nb_simu):
+        dep = time()
+        while (time() - dep) < time_left/20:
             nd, stack = self._tree_policy(env)
             reward = nd.rollout(env)
             while len(stack) > 0:

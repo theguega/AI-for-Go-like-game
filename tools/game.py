@@ -284,11 +284,11 @@ class Game:
                 best_action = action
         return best_action
 
-    def strategy_mcts(self, nb_simu: int, root: MCTSNode = None) -> Action:
+    def strategy_mcts(self, time_left: int, root: MCTSNode = None) -> Action:
         """Monte Carlo Tree Search strategy"""
         if not root:
             root: MCTSNode = MCTSNode(self.legals(), self.player)
-        root = root.best_action(self, nb_simu=nb_simu)
+        root = root.best_action(self, time_left)
         return root.parent_action, root
 
 
