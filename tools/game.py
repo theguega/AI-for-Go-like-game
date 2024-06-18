@@ -1,46 +1,74 @@
+"""Game class and functions"""
+
 from typing import Union
-import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
 import random
 from collections import deque
-import numpy as np
-
-from tools.hexagons import *
-from tools.mcts import *
-from client.gndclient import *
+import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
+from tools.hexagons import (
+    Hex,
+    Layout,
+    Point,
+    layout_ia02,
+    polygon_corners,
+    hex_to_pixel,
+    axial_to_cube,
+    DoubledCoord,
+)
+from client.gndclient import (
+    Player,
+    Time,
+    BLUE,
+    RED,
+    EMPTY,
+    GOPHER_STR,
+    DODO_STR,
+    Action,
+    ActionGopher,
+    ActionDodo,
+    Score,
+)
 from tools.mcts import MCTSNode
 
-# -------- Types - modifiés --------
-Cell_perso = Hex
-State_perso = dict[Cell_perso, Union[Player, int]]
-Neighbors = dict[Cell_perso, list[Cell_perso]]
+
+# --------------------------------------
 
 
-# -------- Environnement --------
+CellPerso = Hex
+StatePerso = dict[CellPerso, Union[Player, int]]
+Neighbors = dict[CellPerso, list[CellPerso]]
+
+
+# --------------------------------------
 
 
 class Game:
+    """Game class"""
+
     def __init__(
         self,
         game: str,
-        state: State_perso,
+        state: StatePerso,
         player: Player,
         hex_size: int,
         total_time: Time,
-        root: MCTSNode = None,
     ):
         if player not in [RED, BLUE]:
             raise ValueError("player must be 1 or 2")
         if hex_size < 1:
             raise ValueError("hex_size must be >= 1")
-
+        if game not in [GOPHER_STR, DODO_STR]:
+            raise ValueError("game must be GOPHER_STR or DODO_STR")
+        
+        self.cache = {}
         self.game: str = game
-        self.state: State_perso = state
+        self.state: StatePerso = state
         self.player: Player = player
         self.hex_size: int = hex_size
         self.total_time: Time = total_time
 
     def plot(self):
+        """Plot the current state of the game"""
         plt.figure(figsize=(10, 10))
         layout = Layout(layout_ia02, Point(1, -1), Point(0, 0))
 
@@ -74,83 +102,51 @@ class Game:
         plt.ylim(-size, size)
 
     def tmp_show(self):
+        """Show the current state of the game for 1 second"""
         self.plot()
         plt.pause(1)
         plt.close()
 
     def final_show(self):
+        """Show the final state of the game"""
         self.plot()
         plt.show()
 
     def final(self) -> bool:
+        """Return True if the game is over"""
         return not self.legals()
 
+    def legals(self) -> list[Action]:
+        """Return the legal moves for the current player"""
+        raise NotImplementedError
+
+    def play(self, action: Action):
+        """Play the move"""
+        raise NotImplementedError
+
+    def undo(self, action: Action):
+        """Undo the move"""
+        raise NotImplementedError
+
+    def score(self) -> Score:
+        """Return the score of the game"""
+        raise NotImplementedError
+
+    def heuristic_evaluation(self, leg) -> Score:
+        """Heuristic evaluation based on the number of legals moves"""
+        raise NotImplementedError
+
     def strategy_random(self) -> Action:
+        """Random strategy"""
         res: list[Action] = self.legals()
         return random.choice(res)
 
-    def strategy_negascout(self, max_depth=5) -> Action:
-        return self.negascout(max_depth, -float("inf"), float("inf"))[0]
-
-    def negascout(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
-        # Récupération des coups possibles
-        leg: list[Action] = self.legals()
-
-        if len(leg) == 0:
-            return None, self.score()
-
-        if depth == 0:
-            return None, self.heuristic_evaluation(leg)
-
-        if self.player == RED:
-            best_score: float = -float("inf")
-            best_action: Action = None
-            first_move = True
-            for action in leg:
-                self.play(action)
-                if first_move:
-                    _, score = self.negascout(depth - 1, -beta, -alpha)
-                else:
-                    _, score = self.negascout(depth - 1, -alpha - 1, -alpha)
-                    if alpha < score < beta:
-                        _, score = self.negascout(depth - 1, -beta, -score)
-                self.undo(action)
-                score = -score
-                if score > best_score:
-                    best_score = score
-                    best_action = action
-                alpha = max(alpha, best_score)
-                if alpha >= beta:
-                    break
-                first_move = False
-            return best_action, best_score
-        else:
-            best_score: float = float("inf")
-            best_action: Action = None
-            first_move = True
-            for action in leg:
-                self.play(action)
-                if first_move:
-                    _, score = self.negascout(depth - 1, -beta, -alpha)
-                else:
-                    _, score = self.negascout(depth - 1, -alpha - 1, -alpha)
-                    if alpha < score < beta:
-                        _, score = self.negascout(depth - 1, -beta, -score)
-                self.undo(action)
-                score = -score
-                if score < best_score:
-                    best_score = score
-                    best_action = action
-                beta = min(beta, best_score)
-                if alpha >= beta:
-                    break
-                first_move = False
-            return best_action, best_score
-
     def strategy_alpha_beta(self, max_depth=5) -> Action:
+        """Alpha beta strategy"""
         return self.alpha_beta(max_depth, -float("inf"), float("inf"))[0]
 
     def alpha_beta(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
+        """Alpha beta algorithm"""
         # recuperation des coups possibles
         leg: list[Action] = self.legals()
 
@@ -174,6 +170,60 @@ class Game:
                 if beta <= alpha:
                     break
             return best_action, best_score
+
+        best_score: float = float("inf")
+        best_action: Action = None
+        for action in leg:
+            self.play(action)
+            _, score = self.alpha_beta(depth - 1, alpha, beta)
+            self.undo(action)
+            if score < best_score:
+                best_score = score
+                best_action = action
+            beta = min(beta, best_score)
+            if beta <= alpha:
+                break
+        return best_action, best_score
+    
+    def strategy_alpha_beta_cache(self, max_depth=5) -> Action:
+        """Alpha beta strategy with cache"""
+        return self.alpha_beta_cache(max_depth, -float("inf"), float("inf"))[0]
+    
+    def alpha_beta_cache(self, depth: int, alpha: int, beta: int) -> tuple[Action, Score]:
+        """Alpha beta algorithm with caching of alpha and beta values"""
+        state_key = (self.player, frozenset(self.state.items()), depth)  # Create a unique key for the current state with depth
+
+        if state_key in self.cache:
+            cached_alpha, cached_beta, cached_result = self.cache[state_key]
+            if cached_alpha >= beta:
+                return cached_result  # Beta cut-off
+            if cached_beta <= alpha:
+                return cached_result  # Alpha cut-off
+            alpha = max(alpha, cached_alpha)
+            beta = min(beta, cached_beta)
+
+        leg: list[Action] = self.legals()
+
+        if len(leg) == 0:
+            return None, self.score()
+
+        if depth == 0:
+            return None, self.heuristic_evaluation(leg)
+
+        if self.player == RED:
+            best_score: float = -float("inf")
+            best_action: Action = None
+            for action in leg:
+                self.play(action)
+                _, score = self.alpha_beta(depth - 1, alpha, beta)
+                self.undo(action)
+                if score > best_score:
+                    best_score = score
+                    best_action = action
+                alpha = max(alpha, best_score)
+                if beta <= alpha:
+                    break
+            result = (best_action, best_score)
         else:
             best_score: float = float("inf")
             best_action: Action = None
@@ -187,11 +237,19 @@ class Game:
                 beta = min(beta, best_score)
                 if beta <= alpha:
                     break
-            return best_action, best_score
+            result = (best_action, best_score)
+
+        self.cache[state_key] = (alpha, beta, result)  # Cache the result with alpha and beta values
+        return result
 
     def strategy_mc(self, nb_iter: int) -> Action:
+        """Monte Carlo strategy"""
         legals: list[Action] = self.legals()
-        max: int = 0
+
+        if len(legals) == 1:
+            return legals[0]
+
+        best_value: int = 0
         best_action: Action = None
         stack: deque = deque()
 
@@ -202,7 +260,7 @@ class Game:
             stack.append(action)
             self.play(action)
 
-            for i in range(nb_iter // len(legals) + 1):
+            for _ in range(nb_iter // len(legals) + 1):
                 while not self.final():
                     tmp_action: Action = self.strategy_random()
                     stack.append(tmp_action)
@@ -219,12 +277,13 @@ class Game:
                 gain = victoire_rouge / nb_iter
             else:
                 gain = victoire_bleu / nb_iter
-            if gain >= max:
-                max = gain
+            if gain >= best_value:
+                best_value = gain
                 best_action = action
         return best_action
 
     def strategy_mcts(self, nb_simu: int, root: MCTSNode = None) -> Action:
+        """Monte Carlo Tree Search strategy"""
         if not root:
             root: MCTSNode = MCTSNode(self.legals(), self.player)
         root = root.best_action(self, nb_simu=nb_simu)
@@ -235,10 +294,12 @@ Environment = Game
 
 
 class GameGopher(Game):
+    """Game Gopher class"""
+
     def __init__(
         self,
         game: str,
-        state: State_perso,
+        state: StatePerso,
         player: Player,
         hex_size: int,
         total_time: Time,
@@ -247,8 +308,8 @@ class GameGopher(Game):
         super().__init__(game, state, player, hex_size, total_time)
 
         # initialisation des pions
-        self.red_pawns: State_perso = {}
-        self.blue_pawns: State_perso = {}
+        self.red_pawns: StatePerso = {}
+        self.blue_pawns: StatePerso = {}
 
         # initilisations de tous les voisins
         neighbor_gopher = [
@@ -271,24 +332,20 @@ class GameGopher(Game):
                     self.neighbors[hexagon].append(neighbor)
 
     def legals(self) -> list[ActionGopher]:
-        """
-        Red begins the game by placing a stone anywhere on the board. Then, starting with Blue, players take turns placing a stone which forms exactly one enemy connection and no friendly connections
-        """
+        """Return the legal moves for the current player"""
         res: list[ActionGopher] = []
 
         # first move can be anywhere
         if len(self.red_pawns) == 0 and len(self.blue_pawns) == 0:
-            for hexagon, _ in self.state.items():
-                res.append(hexagon)
-            return res
+            # if the board is empty, we place the first pawn in the center
+            res.append(axial_to_cube(DoubledCoord(0, self.hex_size - 1)))
 
-        # else, we we can place a pawn on a cell that has exactly one enemy connection and no friendly connections
         # O(nb_paws) = O(nb_paws)
         for hexagon, _ in (
             self.red_pawns.items() if self.player == BLUE else self.blue_pawns.items()
         ):
             # O(6) = O(1)
-            moves: list[Cell_perso] = []
+            moves: list[CellPerso] = []
 
             for neighbor in self.neighbors[hexagon]:
                 if self.state[neighbor] == EMPTY:
@@ -308,6 +365,7 @@ class GameGopher(Game):
         return res
 
     def play(self, action: ActionGopher):
+        """Play the move"""
         # update party state
         self.state[action] = self.player
 
@@ -320,6 +378,7 @@ class GameGopher(Game):
         self.player = 3 - self.player  # changement de joueur
 
     def undo(self, action: ActionGopher):
+        """ "Undo the move"""
         self.player = 3 - self.player  # repassage au joueur précédent
 
         # update party state
@@ -332,20 +391,23 @@ class GameGopher(Game):
             del self.blue_pawns[action]
 
     def score(self) -> Score:
+        """Return the score of the game"""
         return -100 if self.player == RED else 100
 
     def heuristic_evaluation(self, leg) -> Score:
+        """Heuristic evaluation based on the number of legals moves"""
         if self.player == RED:
-            return len(self.red_pawns) / len(leg)
-        else:
-            return -len(self.blue_pawns) / len(leg)
+            return len(leg)
+        return -len(leg)
 
 
 class GameDodo(Game):
+    """Game Dodo class"""
+
     def __init__(
         self,
         game: str,
-        state: State_perso,
+        state: StatePerso,
         player: Player,
         hex_size: int,
         total_time: Time,
@@ -354,8 +416,8 @@ class GameDodo(Game):
         super().__init__(game, state, player, hex_size, total_time)
 
         # initialisation des pions
-        self.red_pawns: list[Cell_perso] = []
-        self.blue_pawns: list[Cell_perso] = []
+        self.red_pawns: list[CellPerso] = []
+        self.blue_pawns: list[CellPerso] = []
         for hexagon, play in state.items():
             if play == RED:
                 self.red_pawns.append(hexagon)
@@ -395,9 +457,7 @@ class GameDodo(Game):
                     self.blue_forward[hexagon].append(neighbor_blue)
 
     def legals(self) -> list[ActionDodo]:
-        """
-        All moves are to unoccupied cells. Players can move their checkers one cell directly forward or diagonally forward.
-        """
+        """Return the legal moves for the current player"""
         res: list[ActionDodo] = []
 
         # O(nb_paws*3) = O(nb_paws)
@@ -413,6 +473,7 @@ class GameDodo(Game):
         return res
 
     def play(self, action: ActionDodo):
+        """Play the move"""
         # update party state
         self.state[action[0]] = EMPTY
         self.state[action[1]] = self.player
@@ -428,6 +489,7 @@ class GameDodo(Game):
         self.player = 3 - self.player  # changement de joueur
 
     def undo(self, action: ActionDodo):
+        """Undo the move"""
         self.player = 3 - self.player  # repassage au joueur précédent
 
         # update party state
@@ -443,29 +505,24 @@ class GameDodo(Game):
             self.blue_pawns.append(action[0])
 
     def score(self) -> Score:
+        """Return the score of the game"""
         return 100 if self.player == RED else -100
 
-    def heuristic_evaluation(self, legals) -> Score:
+    def heuristic_evaluation(self, leg) -> Score:
+        """Heuristic evaluation based on the number of legals moves"""
         # less legals moves is better
         if self.player == RED:
-            score1 = (len(self.red_pawns) * 3) / len(legals)
-        else:
-            score1 = -(len(self.blue_pawns) * 3) / len(legals)
-
-        # mean of the height of the pawns
-        if self.player == RED:
-            score2 = sum([pawn.r for pawn in self.red_pawns]) / len(self.red_pawns)
-        else:
-            score2 = sum([pawn.r for pawn in self.blue_pawns]) / len(self.blue_pawns)
-        return score1 + score2
+            return -len(leg)
+        return len(leg)
 
 
-# -------- Initlisation des plateaux de jeu --------
+# --------------------------------------
 
 
-def new_dodo(h: int) -> State_perso:
+def new_dodo(h: int) -> StatePerso:
+    """Return a new Dodo grid of size h x h"""
     h = h - 1  # pour avoir un plateau de taille h
-    res: State_perso = {}
+    res: StatePerso = {}
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
         qmax = min(h, r + h)
@@ -478,9 +535,10 @@ def new_dodo(h: int) -> State_perso:
     return res
 
 
-def empty_grid(h: int) -> State_perso:
+def empty_grid(h: int) -> StatePerso:
+    """Return an empty hexagonal grid of size h x h"""
     h = h - 1  # pour avoir un plateau de taille h
-    res: State_perso = {}
+    res: StatePerso = {}
     for r in range(h, -h - 1, -1):
         qmin = max(-h, r - h)
         qmax = min(h, r + h)

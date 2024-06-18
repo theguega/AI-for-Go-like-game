@@ -1,30 +1,29 @@
-#######################################################################
-#######################################################################
-##############                                       ##################
-#############       CE FICHIER IMPLEMENTE NOTRE       #################
-##############      NOTRE BOUCLE DE JEUX PERSO       ##################
-##############                                       ##################
-#######################################################################
-#######################################################################
+"""Simulations local avec export des données dans un fichier texte"""
+
 import cProfile
 import pstats
 import time
-
 from client.gndclient import GOPHER_STR, DODO_STR, State, Player, Time, RED
 from tools.game import GameGopher, GameDodo, Environment, new_dodo, empty_grid
 
 # board settings
-NAME = GOPHER_STR
-SIZE = 4
+NAME = DODO_STR  # change the game here (GOPHER_STR or DODO_STR)
+
+DODO_SIZE = 4
+GOPHER_SIZE = 6
 
 # game settings
-NB_ITERATION = 50
-BASE_DEPTH = 6 # depth for alphabeta algorythms
-NB_SIMU = 400 # number of simulations for monte carlo algorythms
+DODO_DEPTH = 8
+DODO_NB_SIMU = 3500
+
+GOPHER_DEPTH = 9
+GOPHER_NB_SIMU = 2500
 
 # other settings
+NB_ITERATION = 1
 DISPLAY = False
 EXPORT = True
+
 
 def initialize_simu(
     game: str, state: State, player: Player, hex_size: int, total_time: Time
@@ -33,13 +32,10 @@ def initialize_simu(
     Initialize the environment with the game, the state, the player, the hex_size and the total_time
     """
     if game == GOPHER_STR:
-        env = GameGopher(game, state, player, hex_size, total_time)
-    elif game == DODO_STR:
-        env = GameDodo(game, state, player, hex_size, total_time)
-    else:
-        raise ValueError("game must be 'Gopher' or 'Dodo'")
-    return env
-
+        env_gopher = GameGopher(game, state, player, hex_size, total_time)
+        return env_gopher
+    env_dodo = GameDodo(game, state, player, hex_size, total_time)
+    return env_dodo
 
 
 if __name__ == "__main__":
@@ -47,36 +43,46 @@ if __name__ == "__main__":
     profiler.enable()
 
     # ---- Boucle de jeu ----
-    victoire_rouge : int = 0
-    victoire_bleu : int = 0
+    victoire_rouge: int = 0
+    victoire_bleu: int = 0
     start_time = time.time()
-    mean_simu_time = 0
+    MEAN_SIMU_TIME = 0
 
     for i in range(NB_ITERATION):
         print("Simulation :", i)
         start_time_simu = time.time()
         if NAME == DODO_STR:
+            SIZE = DODO_SIZE
+            DEPTH = DODO_DEPTH
+            SIMU = DODO_NB_SIMU
             initial_state = new_dodo(SIZE)
-        elif NAME == GOPHER_STR:
+        else:
+            SIZE = GOPHER_SIZE
+            DEPTH = GOPHER_DEPTH
+            SIMU = GOPHER_NB_SIMU
             initial_state = empty_grid(SIZE)
 
         env = initialize_simu(NAME, initial_state, RED, SIZE, 50)
-        tour = 0
+        TOUR = 0
 
         while not env.final():
             debut_time_tour = time.time()
             if env.player == RED:
-                depth = BASE_DEPTH
-                
-                action, _ = env.strategy_mcts(NB_SIMU)  #change strategy for RED player here
-                # action = env.strategy_alpha_beta(depth) #change strategy for RED player here
-                # action = env.strategy_mc(NB_SIMU) #change strategy for RED player here
-            else:
-                depth = BASE_DEPTH+1
+                # change strategy for RED player here
 
-                action = env.strategy_alpha_beta(depth) #change strategy for BLUE player here
-                # action = env.strategy_mc(NB_SIMU) #change strategy for BLUE player here
-                # action, _ = env.strategy_mcts(NB_SIMU) #change strategy for BLUE player here
+                # action = env.strategy_random()
+                action = env.strategy_mc(SIMU)
+                # action, _ = env.strategy_mcts(SIMU)
+                # action = env.strategy_alpha_beta(DEPTH)
+                # action = env.strategy_alpha_beta_cache(DEPTH)
+            else:
+                # change strategy for BLUE player here
+
+                # action = env.strategy_random()
+                # action = env.strategy_mc(SIMU)
+                # action, _ = env.strategy_mcts(SIMU)
+                # action = env.strategy_alpha_beta(DEPTH)
+                action = env.strategy_alpha_beta_cache(DEPTH)
 
             fin_time_tour = time.time()
             print(
@@ -84,17 +90,17 @@ if __name__ == "__main__":
                 env.player,
                 " | ",
                 "Tour n°",
-                tour,
+                TOUR,
                 " : ",
                 fin_time_tour - debut_time_tour,
                 "s",
             )
-            mean_simu_time += fin_time_tour - debut_time_tour
-            tour += 1
+            MEAN_SIMU_TIME += fin_time_tour - debut_time_tour
+            TOUR += 1
             env.play(action)
             print()
             if DISPLAY:
-                env.final_show()
+                env.tmp_show()
         end_time_simu = time.time()
 
         if env.score() == 100:
@@ -105,7 +111,7 @@ if __name__ == "__main__":
         intermediate_time = time.time()
         print("Temps de simulation : ", end_time_simu - start_time_simu, "s")
         print("Winner :", "rouge" if env.score() == 100 else "bleu")
-    mean_simu_time /= NB_ITERATION
+    MEAN_SIMU_TIME /= NB_ITERATION
     # ---- Affichage du profilage ----
 
     profiler.disable()
@@ -131,7 +137,7 @@ if __name__ == "__main__":
         strat_bleu: str = "MCTS 400 simulations"
         if NAME == GOPHER_STR:
             PATH = "doc/simulations_dodo.txt"
-        else :
+        else:
             PATH = "doc/simulations_gopher.txt"
 
         with open(PATH, "a", encoding="utf-8") as file:
@@ -144,10 +150,9 @@ if __name__ == "__main__":
                 f"Victoire bleu : {victoire_bleu}\n"
                 f"Taux de victoire rouge : {round(victoire_rouge / NB_ITERATION * 100)}%\n"
                 f"Temps d'exécution : {end_time - start_time}s\n"
-                f"Temps moyen par simulation : {mean_simu_time}s\n"
+                f"Temps moyen par simulation : {MEAN_SIMU_TIME}s\n"
                 f"\n\n\n\n\n"
             )
         file.close()
-    
     if DISPLAY:
         env.final_show()

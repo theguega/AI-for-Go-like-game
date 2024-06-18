@@ -1,12 +1,18 @@
-import numpy as np
-from collections import defaultdict, deque
-from typing import *
+"""Monte Carlo Tree Search"""
 
-from tools.game import *
-from client.gndclient import *
+from collections import defaultdict, deque
+import numpy as np
+
+from client.gndclient import (
+    Action,
+    Player,
+    BLUE,
+)
 
 
 class MCTSNode:
+    """Node of the Monte Carlo Tree Search"""
+
     def __init__(
         self, leg: list[Action], player: Player, parent=None, parent_action=None
     ):
@@ -20,15 +26,17 @@ class MCTSNode:
         self._loses: int = 0
         self._untried_actions: list[Action] = None
         self._untried_actions = leg
-        return
 
     def q(self) -> int:
+        """Return the number of wins of the node"""
         return self._wins - self._loses
 
     def n(self) -> int:
+        """Return the number of visits of the node"""
         return self._number_of_visits
 
     def expand(self, env):
+        """Expand the node with a new child node"""
         action: Action = self._untried_actions.pop()
         env.play(action)
         leg: list[Action] = env.legals()
@@ -40,9 +48,11 @@ class MCTSNode:
         return child_node
 
     def is_terminal_node(self, env) -> bool:
+        """Check if the node is a terminal node"""
         return env.final()
 
     def rollout(self, env) -> int:
+        """Simulate a game from the node"""
         stack: deque = deque()
         while not env.final():
             action: Action = env.strategy_random()
@@ -55,6 +65,7 @@ class MCTSNode:
         return score
 
     def backpropagate(self, result: int):
+        """Update the node with the result of the simulation"""
         self._number_of_visits += 1.0
         if self.associated_player == BLUE:
             if result == -100:
@@ -70,10 +81,11 @@ class MCTSNode:
             self.parent.backpropagate(result)
 
     def is_fully_expanded(self) -> bool:
+        """ "Check if the node is fully expanded"""
         return len(self._untried_actions) == 0
 
     def best_child(self, c_param=np.sqrt(2)):
-
+        """Return the best child of the node"""
         choices_weights = [
             (c.q() / c.n()) + c_param * np.sqrt((np.log(self.n()) / c.n()))
             for c in self.children
@@ -81,24 +93,25 @@ class MCTSNode:
         return self.children[np.argmax(choices_weights)]
 
     def _tree_policy(self, env):
-
+        """Select the best node to explore"""
         stack: deque[Action] = deque()
         current_node: MCTSNode = self
         while not current_node.is_terminal_node(env):
 
             if not current_node.is_fully_expanded():
                 return current_node.expand(env), stack
-            else:
-                current_node = current_node.best_child()
-                stack.append(current_node.parent_action)
-                env.play(current_node.parent_action)
+
+            current_node = current_node.best_child()
+            stack.append(current_node.parent_action)
+            env.play(current_node.parent_action)
 
         return current_node, stack
 
     def best_action(self, env, nb_simu=1000):
+        """Return the best action to play"""
         nd: MCTSNode
         stack: deque[Action]
-        for i in range(nb_simu):
+        for _ in range(nb_simu):
             nd, stack = self._tree_policy(env)
             reward = nd.rollout(env)
             while len(stack) > 0:
