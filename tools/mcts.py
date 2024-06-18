@@ -113,7 +113,7 @@ class MCTSNode:
         nd: MCTSNode
         stack: deque[Action]
         dep = time()
-        while (time() - dep) < time_left/20:
+        while (time() - dep) < time_left/10:
             nd, stack = self._tree_policy(env)
             reward = nd.rollout(env)
             while len(stack) > 0:
