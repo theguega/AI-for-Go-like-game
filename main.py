@@ -31,7 +31,7 @@ DODO_DEPTH = 8
 DODO_NB_SIMU = 4000
 
 GOPHER_DEPTH = 10
-GOPHER_NB_SIMU = 3500
+GOPHER_NB_SIMU = 1000
 
 
 # --------------------------------------
@@ -152,7 +152,7 @@ def strategy(
     if env.game == DODO_STR:
         best_action,env.root = env.strategy_mcts(DODO_NB_SIMU,env.root)
     else:
-        best_action = env.strategy_alpha_beta_cache(GOPHER_DEPTH)
+        best_action,env.root= env.strategy_mcts(GOPHER_NB_SIMU,env.root)
     env.play(best_action)
 
     # convert the action for the api
@@ -175,8 +175,8 @@ if __name__ == "__main__":
     parser.add_argument("group_id")
     parser.add_argument("members")
     parser.add_argument("password")
-    # parser.add_argument("-s", "--server-url", default="http://localhost:8080/")
-    parser.add_argument("-s", "--server-url", default="http://lchappuis.fr:8080/")
+    parser.add_argument("-s", "--server-url", default="http://localhost:8080/")
+    #parser.add_argument("-s", "--server-url", default="http://lchappuis.fr:8080/")
     parser.add_argument("-d", "--disable-dodo", action="store_true")
     parser.add_argument("-g", "--disable-gopher", action="store_true")
     args = parser.parse_args()

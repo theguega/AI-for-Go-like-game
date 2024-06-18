@@ -67,6 +67,7 @@ class Game:
         self.player: Player = player
         self.hex_size: int = hex_size
         self.total_time: Time = total_time
+        self.root: MCTSNode = root
 
     def plot(self):
         """Plot the current state of the game"""
@@ -304,9 +305,10 @@ class GameGopher(Game):
         player: Player,
         hex_size: int,
         total_time: Time,
+        root: MCTSNode = None,
     ):
         # initialisation de la classe mère
-        super().__init__(game, state, player, hex_size, total_time)
+        super().__init__(game, state, player, hex_size, total_time,root)
 
         # initialisation des pions
         self.red_pawns: StatePerso = {}
@@ -412,9 +414,10 @@ class GameDodo(Game):
         player: Player,
         hex_size: int,
         total_time: Time,
+        root: MCTSNode = None,
     ):
         # initialisation de la classe mère
-        super().__init__(game, state, player, hex_size, total_time)
+        super().__init__(game, state, player, hex_size, total_time,root)
 
         # initialisation des pions
         self.red_pawns: list[CellPerso] = []
