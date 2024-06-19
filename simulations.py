@@ -74,13 +74,16 @@ if __name__ == "__main__":
                 # action, _ = env.strategy_mcts(SIMU)
                 # action = env.strategy_alpha_beta(DEPTH)
                 # action = env.strategy_alpha_beta_cache(DEPTH)
+                for child in env.root.children:
+                    if child.parent_action == action:
+                        env.root = child
             else:
                 # change strategy for BLUE player here
                 # action = env.strategy_random()
                 # action = env.strategy_mc(SIMU)
-                # action, _ = env.strategy_mcts(SIMU)
+                action, env.root = env.strategy_mcts(SIMU,env.root)
                 # action = env.strategy_alpha_beta(DEPTH)
-                action = env.strategy_alpha_beta_cache(DEPTH)
+                # action = env.strategy_alpha_beta_cache(DEPTH)
 
             fin_time_tour = time.time()
             print(
