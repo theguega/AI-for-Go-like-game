@@ -30,7 +30,7 @@ from tools.game import (
 DODO_DEPTH = 8
 DODO_NB_SIMU = 4000
 
-GOPHER_DEPTH = 9
+GOPHER_DEPTH = 10
 GOPHER_NB_SIMU = 2500
 
 
