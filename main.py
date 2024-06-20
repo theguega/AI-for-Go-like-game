@@ -152,7 +152,7 @@ def strategy(
     if env.game == DODO_STR:
         best_action,env.root = env.strategy_mcts(DODO_NB_SIMU,env.root)
     else:
-        best_action,env.root= env.strategy_mcts(GOPHER_NB_SIMU,env.root)
+        best_action = env.strategy_alpha_beta_cache(GOPHER_DEPTH)
     env.play(best_action)
 
     # convert the action for the api
