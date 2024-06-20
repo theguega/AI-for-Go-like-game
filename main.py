@@ -30,8 +30,8 @@ from tools.game import (
 DODO_DEPTH = 8
 DODO_NB_SIMU = 4000
 
-GOPHER_DEPTH = 10
-GOPHER_NB_SIMU = 1000
+GOPHER_DEPTH = 9
+GOPHER_NB_SIMU = 2500
 
 
 # --------------------------------------
@@ -163,7 +163,7 @@ def strategy(
             cellperso_to_cell(best_action[0]),
             cellperso_to_cell(best_action[1]),
         )
-
+    print(f"Action played by player {player} : {best_action}")
     return env, best_action
 
 
@@ -175,8 +175,8 @@ if __name__ == "__main__":
     parser.add_argument("group_id")
     parser.add_argument("members")
     parser.add_argument("password")
-    parser.add_argument("-s", "--server-url", default="http://localhost:8080/")
-    #parser.add_argument("-s", "--server-url", default="http://lchappuis.fr:8080/")
+    #parser.add_argument("-s", "--server-url", default="http://localhost:8080/")
+    parser.add_argument("-s", "--server-url", default="http://lchappuis.fr:8081/")
     parser.add_argument("-d", "--disable-dodo", action="store_true")
     parser.add_argument("-g", "--disable-gopher", action="store_true")
     args = parser.parse_args()
