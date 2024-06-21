@@ -79,15 +79,20 @@ Nous avons décider d'implémenter les statégies suivantes :
 
 Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos tests avec un resultat exportés sur fichier texte et un profilage pour vérifier le temps d'exécution de chaque fonction.  
 
-Les paramètres `EXPORT`, `SIZE`, `DISPLAY`, `NAME` et `NB_ITERATION` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes `71` et `78` : 
+Les paramètres `EXPORT`, `SIZE`, `DISPLAY`, `NAME` et `NB_ITERATION` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes `71` et `81` : 
 
 ```python
 action = env.strategy_random()
 action = env.strategy_mc(SIMU)
-action, _ = env.strategy_mcts(SIMU)
+action, env.root = env.strategy_mcts(SIMU,env.root)
 action = env.strategy_alpha_beta(DEPTH)
 action = env.strategy_alpha_beta_cache(DEPTH)
 ```
+
+## Nos stratégies
+Après beaucoup de simulations, nous avons décidé de partir sur une stratégie alpha-beta avec cache pour le jeu Gopher, avec une fonction d'évaluation basée sur le nombre de coups légaux (nous essayons de maximiser le nombre de coups possibles) et comme paramètre la profondeur souhaitée.
+
+Pour Dodo, nous sommes partis sur un MCTS avec conservation de la racine pour garder une trace des simulations précédentes. Nous utilisons un paramètre basé sur le nombre de simulations, cependant, nous avons aussi utilisé MCTS en lui passant un temps (voir branche time_implementation).
 
 ---
 
