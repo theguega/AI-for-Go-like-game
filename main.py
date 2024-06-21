@@ -27,10 +27,10 @@ from tools.game import (
 )
 
 # game settings
-DODO_DEPTH = 8
-DODO_NB_SIMU = 4000
+DODO_DEPTH = 6
+DODO_NB_SIMU = 5000
 
-GOPHER_DEPTH = 10
+GOPHER_DEPTH = 8
 GOPHER_NB_SIMU = 2500
 
 
@@ -176,7 +176,8 @@ if __name__ == "__main__":
     parser.add_argument("members")
     parser.add_argument("password")
     #parser.add_argument("-s", "--server-url", default="http://localhost:8080/")
-    parser.add_argument("-s", "--server-url", default="http://lchappuis.fr:8081/")
+    #parser.add_argument("-s", "--server-url", default="http://lchappuis.fr:8080/")
+    parser.add_argument("-s", "--server-url", default="http://lagrue.ninja")
     parser.add_argument("-d", "--disable-dodo", action="store_true")
     parser.add_argument("-g", "--disable-gopher", action="store_true")
     args = parser.parse_args()
