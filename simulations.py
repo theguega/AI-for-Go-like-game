@@ -69,9 +69,8 @@ if __name__ == "__main__":
             debut_time_tour = time.time()
             if env.player == RED:
                 # change strategy for RED player here
-                action = env.strategy_random()
-                # action = env.strategy_mc(SIMU)
-                # action, _ = env.strategy_mcts(SIMU)
+                # action = env.strategy_random()
+                action = env.strategy_mc(SIMU)
                 # action = env.strategy_alpha_beta(DEPTH)
                 # action = env.strategy_alpha_beta_cache(DEPTH)
                 if env.root:
