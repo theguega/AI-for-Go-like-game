@@ -77,6 +77,11 @@ Nous avons décider d'implémenter les statégies suivantes :
 
 ## Faire tourner des simulations
 
+```bash
+# lancer les simulations
+python3 simulations.py
+```
+
 Nous avons mis en place un script nous permettant de faire tourner beaucoup de simulations pour nos tests avec un résultat exportés sur fichier texte et un profilage pour vérifier le temps d'exécution de chaque fonction.  
 
 Les paramètres `EXPORT`, `SIZE`, `DISPLAY`, `NAME` et `NB_ITERATION` sont adaptables ainsi que la strategy des joueurs parmi les suivantes aux lignes `71` et `81` : 
@@ -88,44 +93,47 @@ action, env.root = env.strategy_mcts(SIMU,env.root)
 action = env.strategy_alpha_beta(DEPTH)
 action = env.strategy_alpha_beta_cache(DEPTH)
 ```
-Remarque: Dans notre script tel qu'il est écrit, un seul joueur peut utiliser le MCTS avec conservation de l'arbre en cours.
+*Remarque :* Dans notre script tel qu'il est écrit, un seul joueur peut utiliser le MCTS avec conservation de l'arbre en cours.
 Dans le cadre de nos simulations, nous n'avons pas eu besoin de confronter deux MCTS avec conservation de racine (stockée dans l'environnement du jeu).
 À l'échelle de nombreuses simulations, cela nous permet d'éviter la création de nombreux attributs inutils de conservation de la racine dans notre environnement de jeu.
 
 ## Nos stratégies
 Dans cette partie, nous allons lister les stratégies développées ainsi que les avantages et inconvénient de chacune.
+
 ### Random
-Cette stratégie nous envoie un coup aléatoire à jouer. L'avantage de cette stratégie est sa rapidité d'éxécution et son inconvénient est sa performance (en termes de qualité des coups joués).
-Nous utilisons notamment cette stratégie dans le cadre des simulations réalisées par les algorithmes Monte Carlo et Monte Carlo Tree Search.
+Cette stratégie nous envoie un coup aléatoire à jouer parmi les coups légaux. L'avantage de cette stratégie est sa rapidité d'exécution, tandis que son inconvénient est sa performance (en termes de qualité des coups joués).  
+Nous utilisons notamment cette stratégie dans le cadre des simulations réalisées par les algorithmes Monte Carlo et Monte Carlo Tree Search, c'est pourquoi nous avons cherché à rendre la génération de coups légaux la plus rapide possible, soit O(nb pions).
 
 ### Alpha-Beta
-Cette stratégie nous renvoie le coup qui maximise nos chances de jouer via l'exploration de l'ensemble possibilités de jeux (sauf celles non-nécessaires cf: coupures). 
-La forte combinatoire de ce jeu ne nous permet pas une exploration entière de l'arbre de jeu. Notre alpha-beta est donc définie selon une certaine profondeur d'arbre et utilise ensuite une fonction d'évaluation (heuristique) nous permettant d'estimer la performance des actions explorées dans le cas où l'état du jeu étudié à la profondeur maximale n'est pas terminal.
-L'avantage de cette méthode est sa performance, son inconvénient étant son temps d'exécution en cas de forte combinatoire, et sa dépendance en termes de performance à la fonction d'évaluation.
+Cette stratégie sélectionne le premier coup parmi ceux qui maximisent nos chances de jouer via l'exploration de l'ensemble des possibilités de jeu (à l'exception de celles non nécessaires, cf. coupures).  
+La forte combinatoire de ce jeu ne nous permet pas une exploration complète de l'arbre de jeu. Notre algorithme alpha-beta est donc défini selon une certaine profondeur d'arbre et utilise ensuite une fonction d'évaluation (heuristique) qui nous permet d'estimer la performance des actions explorées lorsque l'état du jeu étudié à la profondeur maximale n'est pas terminal.  
+L'avantage de cette méthode est sa performance, tandis que son inconvénient réside dans son temps d'exécution en cas de forte combinatoire, et dans sa dépendance en termes de performance à la fonction d'évaluation.  
+Contrairement à un algorithme de type Monte-Carlo, le temps pour jouer peut énormément varier selon la taille de l'arbre.
 
 ### Alpha-Beta avec cache
-Cette stratégie est la même que la stratégie précédente avec une amélioration du temps d'exécution liée à l'ajout d'une technique de cache pour les états de jeux déjà explorées.
-Elle garde néanmoins les mêmes inconvénients
+Cette stratégie est la même que la stratégie précédente, avec une amélioration du temps d'exécution grâce à l'ajout d'une technique de cache pour les états de jeu déjà explorés.  
+Nous avons décidé de créer un cache sous la forme d'un dictionnaire contenant des clés uniques pour chaque nœud, stockant alpha, beta, et le score du nœud.  
+Elle garde néanmoins les mêmes inconvénients.  
 
 ### Monte Carlo
-Cette stratégie étudie de façon probabiliste le taux de victoire de chacune des possibilité en effectuant des simulations aléatoires de fin de partie à partir de chacuns des coups possibles. Pour cette méthode, chacun d'eux est testé uniformément (même nombre de simulations).
-L'action renvoyée est celle pour laquelle la probabilité de victoire est la plus haute.
-L'avantage de cette méthode est sa rapidité d'exécution (varie en fonction du nombre de simulations choisi).
-Son inconvénient et que sa performance est très fortement dépendante de nombre de simulations réalisées (convergence des estimations du taux de victoire vers le taux réel quand le nombre d'estimations tend vers l'infini (cf:SY02, Théorème central limite)).
+Cette stratégie étudie de façon probabiliste le taux de victoire de chacune des possibilités en effectuant des simulations aléatoires de fin de partie à partir de chacun des coups possibles. Pour cette méthode, chacun d'eux est testé uniformément (même nombre de simulations).
+L'action renvoyée est celle pour laquelle la probabilité de victoire est la plus haute.  
+L'avantage de cette méthode est sa rapidité d'exécution, qui varie en fonction du nombre de simulations choisi.  
+Son inconvénient est que sa performance est très fortement dépendante du nombre de simulations réalisées (la convergence des estimations du taux de victoire vers le taux réel augmente lorsque le nombre de simulations tend vers l'infini, cf. SY02, Théorème central limite).  
 
 ### Monte Carlo Tree Search (MCTS)
-Cette strategie étudie l'ensemble des coups jouables et évalue les probabilités de victoires de ceux-ci simulant aléatoirement la fin de partie. 
-Dans cet algorithme, l'étude des probabilités de victoires n'est pas la même en fonction des coups légaux. En effet, les coups jugés les plus "intéressants" par la méthode de l'UBC (Upper Bound Confidence) sont ceux qui bénéficieront du plus de simulation aléatoire.
-L'avantage de cette méthode est sa rapidité d'exécution (varie en fonction du nombre de simulations choisi).
-Son inconvénient et que sa performance (en termes de qualité des coups joués) est très fortement dépendante de nombre de simulations réalisées (convergence des estimations du taux de victoire vers le taux réel quand le nombre d'estimations tend vers l'infini (cf: SY02, Théorème central limite)).
-Également, la qualité du MCTS est dépendante de la qualité de l'heuristique de choix des branches explorées (ici UBC). 
+Cette stratégie étudie l'ensemble des coups jouables et évalue les probabilités de victoire de ceux-ci en simulant aléatoirement la fin de partie.  
+Dans cet algorithme, l'étude des probabilités de victoire n'est pas la même en fonction des coups légaux. En effet, les coups jugés les plus "intéressants" par la méthode de l'UBC (Upper Bound Confidence) sont ceux qui bénéficieront du plus de simulations aléatoires.
+L'avantage de cette méthode est sa rapidité d'exécution, qui varie en fonction du nombre de simulations choisi.  
+Son inconvénient est que sa performance (en termes de qualité des coups joués) est très fortement dépendante du nombre de simulations réalisées (la convergence des estimations du taux de victoire vers le taux réel augmente lorsque le nombre de simulations tend vers l'infini, cf. SY02, Théorème central limite).  
+Également, la qualité du MCTS dépend de la qualité de l'heuristique de choix des branches explorées (ici UCT).  
 
-Remarque : Pour gagner en qualité des coups joués, nous avons fait le choix de conserver l'arbre construit par le MCTS et changeons de racine au cours du jeu en fonctions des coups joués. Cela nous permet de conserver les résultats des simulations déjà effectuées dans la branche lors des tours précédent (donc de converger vers des résultats plus proche de la réalité (cf: SY02))
+*Remarque* : Pour améliorer la qualité des coups joués, nous avons fait le choix de conserver l'arbre construit par le MCTS et de changer de racine au cours du jeu en fonction des coups joués. Cela nous permet de conserver les résultats des simulations déjà effectuées dans la branche lors des tours précédents, et donc de converger vers des résultats plus proches de la réalité (cf. SY02).  
 
 ## Notre choix d'utilisation
-Après beaucoup de simulations, nous avons décidé de partir sur une stratégie alpha-beta avec cache pour le jeu Gopher, avec une fonction d'évaluation basée sur le nombre de coups légaux (nous essayons de maximiser le nombre de coups possibles) et comme paramètre la profondeur souhaitée.
+Après de nombreuses simulations, nous avons décidé d'adopter une stratégie alpha-beta avec cache pour le jeu **Gopher**, avec une fonction d'évaluation basée sur le nombre de coups légaux (nous essayons de maximiser le nombre de coups possibles) et, comme paramètre, la profondeur souhaitée.  
 
-Pour Dodo, nous sommes partis sur un MCTS avec conservation de la racine pour garder une trace des simulations précédentes. Nous utilisons un paramètre basé sur le nombre de simulations, cependant, nous avons aussi tenté une implémentation basée sur le temps disponible pour jouer un coup (voir branche time_implementation) qui nous poses quelques problèmes de fiabiltés (certaines branches ne peuevent pas être explorées du fait d'un temp restant très faible).
+Pour **Dodo**, nous avons opté pour un MCTS avec conservation de la racine pour garder une trace des simulations précédentes. Nous utilisons un paramètre basé sur le nombre de simulations, cependant, nous avons également tenté une implémentation basée sur le temps disponible pour jouer un coup (voir branche time_implementation) qui nous pose quelques problèmes de fiabilité (certaines branches ne peuvent pas être explorées en raison d'un temps restant très faible).  
 
 ---
 
