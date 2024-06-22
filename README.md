@@ -118,7 +118,7 @@ Cette strategie étudie l'ensemble des coups jouables et évalue les probabilit�
 Dans cet algorithme, l'étude des probabilités de victoires n'est pas la même en fonction des coups légaux. En effet, les coups jugés les plus "intéressants" par la méthode de l'UBC (Upper Bound Confidence) sont ceux qui bénéficieront du plus de simulation aléatoire.
 L'avantage de cette méthode est sa rapidité d'exécution (varie en fonction du nombre de simulations choisi).
 Son inconvénient et que sa performance (en termes de qualité des coups joués) est très fortement dépendante de nombre de simulations réalisées (convergence des estimations du taux de victoire vers le taux réel quand le nombre d'estimations tend vers l'infini (cf: SY02, Théorème central limite)).
-Également, la performance du MCTS dépend de la qualité de l'heuristique de choix des branches explorées (ici UBC). 
+Également, la qualité du MCTS est dépendante de la qualité de l'heuristique de choix des branches explorées (ici UBC). 
 
 Remarque : Pour gagner en qualité des coups joués, nous avons fait le choix de conserver l'arbre construit par le MCTS et changeons de racine au cours du jeu en fonctions des coups joués. Cela nous permet de conserver les résultats des simulations déjà effectuées dans la branche lors des tours précédent (donc de converger vers des résultats plus proche de la réalité (cf: SY02))
 
