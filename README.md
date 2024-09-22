@@ -23,8 +23,6 @@ This project implements several Artificial Intelligence (AI) strategies for two 
 4. [Running Simulations](#running-simulations)
 5. [Strategies](#strategies)
 6. [Our Approach](#our-approach)
-7. [Contributing](#contributing)
-8. [License](#license)
 
 ## **Setup**
 For the best experience, it's recommended to use a virtual environment. Here's how you can set up the project with **Anaconda**:
